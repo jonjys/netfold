@@ -1,11 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { authMiddleware } from "@/lib/auth/middleware";
+import { getSessionUser } from "@/lib/auth/verify.server";
 import { getSql } from "@/lib/db";
 import { buildAllKits } from "@/lib/listings";
 import { SKUS, STRIPE_PRICE_DEFAULT, type SkuId } from "@/lib/skus";
 import { newId } from "@/lib/utils";
 import { loadScan, saveScan } from "./scan";
+import { ensureStripeCustomer, recordPurchase, requireConsent } from "./accounts";
 
 function stripeSecret(): string | undefined {
   const key = process.env.STRIPE_SECRET_KEY?.trim();
@@ -55,6 +58,7 @@ export async function fulfillOrder(input: {
   amountCents: number;
   scanToken?: string | null;
   walletToken?: string | null;
+  userId?: string | null;
 }): Promise<void> {
   const sql = await getSql();
   const existing = await sql<{ id: string }>`
@@ -63,13 +67,28 @@ export async function fulfillOrder(input: {
 
   const paymentId = newId();
   await sql`insert into payments (
-      id, provider, provider_id, sku, amount_cents, currency, status, scan_token, wallet_token
+      id, provider, provider_id, sku, amount_cents, currency, status, scan_token, wallet_token, user_id
     ) values (
       ${paymentId}, ${input.provider}, ${input.providerId}, ${input.sku},
-      ${input.amountCents}, ${"eur"}, ${"paid"}, ${input.scanToken ?? null}, ${input.walletToken ?? null}
+      ${input.amountCents}, ${"eur"}, ${"paid"}, ${input.scanToken ?? null}, ${input.walletToken ?? null},
+      ${input.userId ?? null}
     )`;
   await sql`insert into ledger (id, entry_type, amount_cents, payment_id, scan_token, note)
     values (${newId()}, ${"revenue"}, ${input.amountCents}, ${paymentId}, ${input.scanToken ?? null}, ${input.sku})`;
+
+  if (input.userId) {
+    await recordPurchase({
+      userId: input.userId,
+      sku: input.sku,
+      productId: `netfold_${input.sku}`,
+      scanToken: input.scanToken,
+      stripeSessionId: input.providerId,
+      amountCents: input.amountCents,
+    });
+    if (input.scanToken) {
+      await sql`update scans set user_id = ${input.userId} where token = ${input.scanToken} and user_id is null`;
+    }
+  }
 
   const sku = SKUS[input.sku];
   if (sku.credits > 0 && input.walletToken) {
@@ -99,6 +118,7 @@ export async function fulfillOrder(input: {
 }
 
 export const startCheckout = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
   .validator(
     z.object({
       sku: z.enum(["report", "extract", "pack"]),
@@ -106,10 +126,16 @@ export const startCheckout = createServerFn({ method: "POST" })
       scanToken: z.string().min(8).max(80).nullable(),
     }),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ context, data }) => {
+    requireConsent();
     const sku = SKUS[data.sku];
     const secret = stripeSecret();
     const origin = publicOrigin();
+    const sessionUser = await getSessionUser();
+    const customerId = await ensureStripeCustomer(
+      context.userId,
+      sessionUser?.email ?? null,
+    );
     const success =
       `${origin}/paid?sku=${data.sku}` +
       (data.scanToken ? `&token=${data.scanToken}` : "");
@@ -123,6 +149,7 @@ export const startCheckout = createServerFn({ method: "POST" })
         amountCents: sku.amountCents,
         scanToken: data.scanToken,
         walletToken: data.wallet,
+        userId: context.userId,
       });
       const previewPath =
         `/paid?sku=${data.sku}` +
@@ -142,6 +169,10 @@ export const startCheckout = createServerFn({ method: "POST" })
     params.set("line_items[0][quantity]", "1");
     params.set("metadata[sku]", data.sku);
     params.set("metadata[wallet]", data.wallet);
+    params.set("metadata[user_id]", context.userId);
+    params.set("client_reference_id", context.userId);
+    if (customerId) params.set("customer", customerId);
+    else if (sessionUser?.email) params.set("customer_email", sessionUser.email);
     if (data.scanToken) params.set("metadata[scan_token]", data.scanToken);
     params.set("allow_promotion_codes", "false");
     params.set("billing_address_collection", "auto");
@@ -188,7 +219,7 @@ export const confirmSession = createServerFn({ method: "POST" })
       id: string;
       payment_status?: string;
       amount_total?: number;
-      metadata?: { sku?: string; wallet?: string; scan_token?: string };
+      metadata?: { sku?: string; wallet?: string; scan_token?: string; user_id?: string };
     };
     if (session.payment_status !== "paid" && session.payment_status !== "no_payment_required") {
       return { ok: false as const };
@@ -202,6 +233,7 @@ export const confirmSession = createServerFn({ method: "POST" })
       amountCents: session.amount_total ?? SKUS[sku].amountCents,
       scanToken: session.metadata?.scan_token ?? data.token,
       walletToken: session.metadata?.wallet,
+      userId: session.metadata?.user_id ?? null,
     });
     return {
       ok: true as const,

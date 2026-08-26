@@ -64,7 +64,7 @@ export function Extractor({
       });
       await navigate({ to: "/s/$token", params: { token: result.token } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not price that.");
+      toast.error(err instanceof Error ? err.message : "Kunde inte prissätta.");
     } finally {
       setBusy(null);
     }
@@ -86,7 +86,7 @@ export function Extractor({
       });
       await navigate({ to: "/s/$token", params: { token: result.token } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No match.");
+      toast.error(err instanceof Error ? err.message : "Ingen träff.");
     } finally {
       setBusy(null);
     }
@@ -108,7 +108,7 @@ export function Extractor({
       });
       await navigate({ to: "/s/$token", params: { token: result.token } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Photo scan failed.");
+      toast.error(err instanceof Error ? err.message : "Foto gick inte att läsa.");
     } finally {
       setBusy(null);
     }
@@ -119,8 +119,8 @@ export function Extractor({
       <div className="flex rounded-xl bg-bg p-1">
         {(
           [
-            ["sell", "Sell this"],
-            ["buy", "Check an ask"],
+            ["sell", "Sälj detta"],
+            ["buy", "Kolla en ask"],
           ] as const
         ).map(([id, label]) => (
           <button
@@ -148,7 +148,7 @@ export function Extractor({
             }}
             placeholder="iPhone 13, Sony XM5, PS5…"
             className="pl-9"
-            aria-label="Item name"
+            aria-label="Pryl"
           />
           {hits.length > 0 && (
             <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg bg-surface-2 shadow-[var(--shadow-border)]">
@@ -176,7 +176,7 @@ export function Extractor({
             {busy === "search" ? (
               <LoaderCircle className="size-4 animate-spin" />
             ) : (
-              "Price it"
+              "Prissätt"
             )}
           </Button>
           <Button
@@ -191,7 +191,7 @@ export function Extractor({
             ) : (
               <Camera className="size-4" />
             )}
-            Photo
+            Foto
           </Button>
         </div>
       </div>
@@ -226,7 +226,7 @@ export function Extractor({
             inputMode="decimal"
             value={asking}
             onChange={(e) => setAsking(e.target.value)}
-            placeholder="Asking €"
+            placeholder="Utrop €"
             className="h-9 w-28 text-xs"
             aria-label="Asking price"
           />
@@ -242,7 +242,7 @@ export function Extractor({
             onClick={() => void runCatalog(q.id)}
             className="h-9 rounded-full bg-bg px-3 text-xs text-muted shadow-[var(--shadow-border)] hover:text-fg"
           >
-            {busy === q.id ? "Pricing…" : `Try ${q.label}`}
+            {busy === q.id ? "Räknar…" : `Prova ${q.label}`}
           </button>
         ))}
       </div>

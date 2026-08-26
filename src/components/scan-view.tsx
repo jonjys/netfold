@@ -3,6 +3,8 @@ import { Check, Copy, Lock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { hasAcceptedConsent } from "@/lib/consent";
 import { formatEuro, formatEuroRange } from "@/lib/money";
 import { CONDITION_LABEL } from "@/lib/pricing";
 import { applyCredit } from "@/lib/server/scan";
@@ -20,15 +22,27 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
   const unlocked = view.unlocked && isFull(view);
   const [busy, setBusy] = useState<string | null>(null);
   const router = useRouter();
+  const { user, isPending } = useCurrentUserState();
 
   async function pay(sku: "report" | "extract" | "pack") {
+    if (!hasAcceptedConsent()) {
+      toast.error("Godkänn cookies först (OK längst ner) så betalningen fungerar.");
+      return;
+    }
+    if (!user) {
+      await router.navigate({
+        to: "/login",
+        search: { next: `/s/${view.token}` },
+      });
+      return;
+    }
     setBusy(sku);
     try {
       const credit = await applyCredit({
         data: { wallet: getWalletToken(), token: view.token, kit: sku !== "report" },
       });
       if (credit.ok) {
-        toast.success("Unlocked with a pack credit.");
+        toast.success("Upplåst med ett pack-kredit.");
         await router.invalidate();
         return;
       }
@@ -37,7 +51,19 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
       });
       window.location.href = session.url;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Checkout failed.");
+      const msg = err instanceof Error ? err.message : "";
+      if (msg === "Unauthorized") {
+        await router.navigate({
+          to: "/login",
+          search: { next: `/s/${view.token}` },
+        });
+        return;
+      }
+      if (msg === "Cookies required") {
+        toast.error("Godkänn cookies först.");
+        return;
+      }
+      toast.error(msg || "Checkout misslyckades.");
     } finally {
       setBusy(null);
     }
@@ -51,16 +77,16 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
     <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
       <div>
         <p className="text-xs uppercase tracking-[0.18em] text-subtle">
-          {view.mode === "buy" ? "Ask check" : "Take-home"}
+          {view.mode === "buy" ? "Kolla ask" : "Vad du får kvar"}
         </p>
         <h1 className="mt-2 font-display text-5xl leading-none tracking-tight sm:text-6xl">
           {headline}
         </h1>
         <p className="mt-4 max-w-md text-sm text-muted">
-          {view.itemCount === 1 ? view.names[0] : `${view.itemCount} items`} · best
-          net on {view.bestChannelShort}
+          {view.itemCount === 1 ? view.names[0] : `${view.itemCount} prylar`} · bäst
+          netto på {view.bestChannelShort}
           {view.trappedVsInstantCents > 800
-            ? ` · instant cash leaves ${unlocked ? formatEuro(view.trappedVsInstantCents) : "a chunk"} behind`
+            ? ` · instant lämnar ${unlocked ? formatEuro(view.trappedVsInstantCents) : "en hel del"} på bordet`
             : null}
         </p>
 
@@ -83,37 +109,44 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
           <UnlockedPanel full={view} />
         ) : (
           <>
-            <p className="font-display text-2xl tracking-tight">Unlock the net</p>
+            <p className="font-display text-2xl tracking-tight">Lås upp nettot</p>
             <p className="mt-2 text-sm text-muted">
-              Exact pocket amounts, ranked channels, ask and accept prices. Listing
-              kit is the extract.
+              Exakta belopp, rankade kanaler, ask och accept. Annonstexten är kitet.
             </p>
             <div className="mt-5 grid gap-2">
-              <Button
-                size="lg"
-                disabled={Boolean(busy)}
-                onClick={() => void pay("report")}
-              >
-                {SKUS.report.name} · {formatEuro(SKUS.report.amountCents, true)}
-              </Button>
-              <Button
-                size="lg"
-                variant="secondary"
-                disabled={Boolean(busy)}
-                onClick={() => void pay("extract")}
-              >
-                {SKUS.extract.name} · {formatEuro(SKUS.extract.amountCents, true)}
-              </Button>
-              <Button
-                variant="ghost"
-                disabled={Boolean(busy)}
-                onClick={() => void pay("pack")}
-              >
-                {SKUS.pack.name} · {formatEuro(SKUS.pack.amountCents, true)}
-              </Button>
+              {isPending ? (
+                <div className="h-12 animate-pulse rounded-md bg-surface-2" />
+              ) : (
+                <>
+                  <Button
+                    size="lg"
+                    disabled={Boolean(busy)}
+                    onClick={() => void pay("report")}
+                  >
+                    {user
+                      ? `${SKUS.report.name} · ${formatEuro(SKUS.report.amountCents, true)}`
+                      : "Logga in för att låsa upp"}
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    disabled={Boolean(busy)}
+                    onClick={() => void pay("extract")}
+                  >
+                    {SKUS.extract.name} · {formatEuro(SKUS.extract.amountCents, true)}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    disabled={Boolean(busy)}
+                    onClick={() => void pay("pack")}
+                  >
+                    {SKUS.pack.name} · {formatEuro(SKUS.pack.amountCents, true)}
+                  </Button>
+                </>
+              )}
             </div>
             <p className="mt-4 text-xs text-subtle">
-              Digital report. Instant. Stripe handles the card. No account needed.
+              Digital rapport. Direkt. Stripe tar kortet. Sparad på ditt konto.
             </p>
           </>
         )}
@@ -144,7 +177,7 @@ function ItemStack({ full }: { full: ScanFull }) {
           <dl className="mt-4 grid grid-cols-3 gap-2 text-xs">
             <Stat label="Ask" value={formatEuro(item.askCents)} />
             <Stat label="Accept" value={formatEuro(item.acceptCents)} />
-            <Stat label="Walk" value={formatEuro(item.walkCents)} />
+            <Stat label="Gå" value={formatEuro(item.walkCents)} />
           </dl>
           <ol className="mt-4 grid gap-1.5">
             {item.quotes.map((q) => (
@@ -186,19 +219,19 @@ function UnlockedPanel({ full }: { full: ScanFull }) {
     typeof window === "undefined"
       ? `/s/${full.token}`
       : `${window.location.origin}/s/${full.token}`;
-  const shareText = `I'll actually pocket ${formatEuro(full.bestTakeHomeCents)} for ${full.names.join(", ")} via Netfold.`;
+  const shareText = `Jag får faktiskt ${formatEuro(full.bestTakeHomeCents)} för ${full.names.join(", ")} via Netfold.`;
 
   async function copy(label: string, text: string) {
     await navigator.clipboard.writeText(text);
     setCopied(label);
-    toast.success("Copied");
+    toast.success("Kopierat");
   }
 
   return (
     <div>
-      <p className="font-display text-2xl tracking-tight">Extraction</p>
+      <p className="font-display text-2xl tracking-tight">Utdrag</p>
       <p className="mt-2 text-sm text-muted">
-        Send the link. Copy the listing. Keep the net.
+        Skicka länken. Kopiera annonsen. Behåll nettot.
       </p>
       <div className="mt-4 grid gap-2">
         <Button
@@ -206,7 +239,7 @@ function UnlockedPanel({ full }: { full: ScanFull }) {
           onClick={() => void copy("link", `${shareText} ${shareUrl}`)}
         >
           {copied === "link" ? <Check className="size-4" /> : <Copy className="size-4" />}
-          Share this number
+          Dela den här siffran
         </Button>
         {full.items[0] && (
           <Link
@@ -214,7 +247,7 @@ function UnlockedPanel({ full }: { full: ScanFull }) {
             params={{ slug: full.items[0].slug }}
             className="inline-flex h-11 items-center justify-center rounded-md text-sm text-muted hover:text-fg"
           >
-            Open public index page
+            Öppna i prisindex
           </Link>
         )}
       </div>
@@ -234,7 +267,7 @@ function UnlockedPanel({ full }: { full: ScanFull }) {
                       void copy(listing.channelId, `${listing.title}\n\n${listing.body}`)
                     }
                   >
-                    Copy {listing.channelId} listing
+                    Kopiera {listing.channelId}-annons
                   </button>
                 ))}
                 <button
@@ -242,7 +275,7 @@ function UnlockedPanel({ full }: { full: ScanFull }) {
                   className="rounded-md bg-surface-2 px-3 py-2 text-left text-xs text-muted hover:text-fg"
                   onClick={() => void copy("lowball", kit.lowballReply)}
                 >
-                  Copy lowball reply
+                  Kopiera lowball-svar
                 </button>
               </div>
             </div>
@@ -250,7 +283,7 @@ function UnlockedPanel({ full }: { full: ScanFull }) {
         </div>
       ) : (
         <p className="mt-6 text-xs text-subtle">
-          Report unlocked. Add the extract kit if you want listing copy.
+          Rapporten är upplåst. Lägg till kitet om du vill ha annonstext.
         </p>
       )}
     </div>

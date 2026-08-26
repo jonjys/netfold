@@ -3,24 +3,24 @@ import { LegalPage } from "@/components/legal";
 
 export const Route = createFileRoute("/privacy")({
   component: () => (
-    <LegalPage title="Privacy">
+    <LegalPage title="Integritet">
       <p>
-        Netfold is built to collect almost nothing. A random wallet token lives in
-        your browser. Scans store item names, prices, and an optional photo hash —
-        not your name. We do not keep card numbers; Stripe does.
+        Netfold samlar in så lite som möjligt. Om du loggar in sparar vi e-post,
+        namn och en Stripe-kund-id så dina köp följer kontot. Utan konto ligger
+        bara en slumpmässig plånbokstoken i webbläsaren.
       </p>
       <p>
-        Photos are sent to xAI for identification, then discarded from our servers.
-        Do not photograph faces, documents, or anything you would not want processed.
+        Cookies: <code>netfold_consent</code> (accepted/declined) minns ditt val.
+        Inloggning och Stripe får inte köras förrän du trycker OK. Nödvändiga
+        sessionscookies sätts vid inloggning. Vi säljer ingen data.
       </p>
       <p>
-        Stripe receives whatever they need to take payment. If you pay, their privacy
-        policy applies to that transaction. We do not sell personal data. There is
-        usually none to sell.
+        Foton skickas till xAI för identifiering och kastas sedan. Fotografera
+        inte ansikten, id-handlingar eller något du inte vill ska behandlas.
       </p>
       <p>
-        Operator metrics on /ops are aggregates: revenue, counts, system status. They
-        are not a customer list.
+        Stripe tar emot det de behöver för betalning. Deras integritetspolicy
+        gäller den transaktionen. Kortnummer lagras inte hos oss.
       </p>
     </LegalPage>
   ),

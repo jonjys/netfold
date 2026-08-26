@@ -23,14 +23,14 @@ export const CHANNELS: Channel[] = [
   {
     id: "local",
     name: "Local pickup",
-    short: "Local",
+    short: "Lokalt",
     feePct: 0,
     feeFixedCents: 0,
     sellerPaysShipCents: 0,
     priceHaircut: 0.04,
     daysToSold: 11,
     effort: "high",
-    note: "Zero fees. You eat no-shows and chat.",
+    note: "Inga avgifter. Du tar no-shows och chatten.",
   },
   {
     id: "facebook",

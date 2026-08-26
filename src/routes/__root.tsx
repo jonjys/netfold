@@ -1,6 +1,7 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
+import { CookieBanner } from "@/components/cookie-banner";
 import { Toaster } from "sonner";
 import { BRAND } from "@/lib/brand";
 import appCss from "../styles.css?url";
@@ -12,7 +13,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: BRAND.name },
       { name: "description", content: BRAND.tagline },
-      { name: "theme-color", content: "#0b0b0c" },
+      { name: "theme-color", content: "#f4f1ea" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
@@ -35,7 +36,7 @@ export const Route = createRootRoute({
     ],
   }),
   component: () => (
-    <html lang="en" className="antialiased" suppressHydrationWarning>
+    <html lang="sv" className="antialiased" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -43,14 +44,15 @@ export const Route = createRootRoute({
         <PreviewHostBridge />
         <AuthProvider>
           <Outlet />
+          <CookieBanner />
           <Toaster
-            theme="dark"
+            theme="light"
             position="bottom-center"
             toastOptions={{
               style: {
-                background: "#141416",
-                color: "#f4f4f5",
-                border: "1px solid rgba(244,244,245,0.12)",
+                background: "#fffcf7",
+                color: "#1c1b18",
+                border: "1px solid rgba(28,27,24,0.12)",
               },
             }}
           />

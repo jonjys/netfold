@@ -12,11 +12,10 @@ function MarketPage() {
   const rows = Route.useLoaderData();
   return (
     <Shell>
-      <p className="text-xs uppercase tracking-[0.2em] text-subtle">Public index</p>
-      <h1 className="mt-3 font-display text-4xl tracking-tight">What used things actually net</h1>
+      <p className="text-xs uppercase tracking-[0.2em] text-subtle">Prisindex</p>
+      <h1 className="mt-3 font-display text-4xl tracking-tight">Vad begagnat faktiskt ger i fickan</h1>
       <p className="mt-3 max-w-lg text-sm text-muted">
-        Good-condition take-home ranges. Not asking prices. Every row is a page you
-        can share.
+        Nettospann i bra skick. Inte utropspriser. Varje rad är en sida du kan dela.
       </p>
       <ul className="mt-8 divide-y divide-border rounded-2xl bg-surface shadow-[var(--shadow-border)]">
         {rows.map((row) => (

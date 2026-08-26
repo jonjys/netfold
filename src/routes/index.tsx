@@ -14,13 +14,13 @@ function Home() {
   return (
     <Shell>
       <section className="pb-6 pt-4 sm:pt-10">
-        <p className="text-xs uppercase tracking-[0.2em] text-subtle">Take-home extractor</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-subtle">Vad du får i fickan</p>
         <h1 className="mt-3 max-w-2xl font-display text-[2.6rem] leading-[0.95] tracking-tight sm:text-6xl">
           {BRAND.tagline}
         </h1>
         <p className="mt-4 max-w-lg text-base text-muted">
-          Asking prices lie. Fees, no-shows and instant-buyers take the rest. Netfold
-          folds the channel math and shows what you actually keep.
+          Utropet ljuger. Avgifter, no-shows och instant-köpare tar resten. Netfold
+          räknar nettot per kanal — Blocket, Vinted, eBay — innan du säljer.
         </p>
       </section>
 
@@ -28,9 +28,9 @@ function Home() {
 
       <section className="mt-10 grid gap-3 sm:grid-cols-3">
         {[
-          { n: "01", t: "Name or photo", d: "Identify the item. Condition included." },
-          { n: "02", t: "Net by channel", d: "Local, Vinted, eBay, marketplace, instant." },
-          { n: "03", t: "Unlock & extract", d: "Pay once. Copy listings. Share the number." },
+          { n: "01", t: "Namn eller foto", d: "Identifiera prylen. Skick ingår." },
+          { n: "02", t: "Netto per kanal", d: "Lokalt, Blocket, Vinted, eBay, instant." },
+          { n: "03", t: "Lås upp rapporten", d: "Betala en gång. Spara den på kontot." },
         ].map((s) => (
           <article key={s.n} className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
             <p className="font-mono text-xs text-subtle">{s.n}</p>
@@ -42,9 +42,9 @@ function Home() {
 
       <section className="mt-12">
         <div className="flex items-end justify-between gap-3">
-          <h2 className="font-display text-2xl tracking-tight">Live index</h2>
+          <h2 className="font-display text-2xl tracking-tight">Prisindex</h2>
           <Link to="/market" className="text-sm text-muted hover:text-fg">
-            All items
+            Alla prylar
           </Link>
         </div>
         <ul className="mt-4 divide-y divide-border rounded-2xl bg-surface shadow-[var(--shadow-border)]">

@@ -6,6 +6,7 @@ import { blurRange, priceItem, sumBest, type Condition, type PricedItem } from "
 import type { ScanFull, ScanMode, ScanTeaser } from "@/lib/types";
 import { newId } from "@/lib/utils";
 import { getSql } from "@/lib/db";
+import { getSessionUser } from "@/lib/auth/verify.server";
 import { identifyPhoto } from "./xai";
 
 const walletSchema = z.string().min(16).max(80);
@@ -80,7 +81,7 @@ function buildFull(input: {
     rangeLowCents: range.low,
     rangeHighCents: range.high,
     trappedVsInstantCents: trapped,
-    bestChannelShort: best?.short ?? "Local",
+    bestChannelShort: best?.short ?? "Lokalt",
     unlocked: input.unlocked ?? false,
     hasKit: input.hasKit ?? false,
     items: input.items,
@@ -93,13 +94,16 @@ function buildFull(input: {
 export async function persistScan(full: ScanFull, wallet: string, imageHash: string | null) {
   const sql = await getSql();
   const teaser = toTeaser(full);
+  const session = await getSessionUser();
+  const userId = session?.id ?? null;
   await sql`insert into scans (
       id, token, wallet_token, mode, source, image_hash, item_count,
-      teaser_json, full_json, unlocked, has_kit, public_slug, asking_cents
+      teaser_json, full_json, unlocked, has_kit, public_slug, asking_cents, user_id
     ) values (
       ${newId()}, ${full.token}, ${wallet}, ${full.mode}, ${full.source}, ${imageHash},
       ${full.itemCount}, ${JSON.stringify(teaser)}, ${JSON.stringify(full)},
-      ${full.unlocked}, ${full.hasKit}, ${full.items[0]?.slug ?? null}, ${full.askingCents}
+      ${full.unlocked}, ${full.hasKit}, ${full.items[0]?.slug ?? null}, ${full.askingCents},
+      ${userId}
     )`;
   await sql`insert into events (id, name, scan_token, source)
     values (${newId()}, ${"scan_created"}, ${full.token}, ${full.source})`;
@@ -144,12 +148,12 @@ export const createScan = createServerFn({ method: "POST" })
 
     if (data.kind === "photo") {
       if (!data.imageBase64 || data.imageBase64.length < 2000) {
-        throw new Error("Photo is missing or too small.");
+        throw new Error("Fotot saknas eller är för litet.");
       }
       await bumpRate(`photo:${data.wallet}`, 8, 24 * 60 * 60 * 1000);
       const identified = await identifyPhoto(data.imageBase64, token);
       if (identified.items.length === 0) {
-        throw new Error("Nothing identifiable. Try a tighter shot or search the name.");
+        throw new Error("Inget gick att läsa. Ta en tightare bild eller sök på namnet.");
       }
       const items = identified.items.map((row) => {
         const catalog = matchIdentified(row);
@@ -177,7 +181,7 @@ export const createScan = createServerFn({ method: "POST" })
 
     if (data.kind === "catalog") {
       const catalog = data.catalogId ? catalogById(data.catalogId) : undefined;
-      if (!catalog) throw new Error("Unknown item.");
+      if (!catalog) throw new Error("Okänd pryl.");
       const condition = (data.condition ?? "good") as Condition;
       const items = [priceItem({ catalog, condition, askingCents })];
       const full = buildFull({
@@ -193,7 +197,7 @@ export const createScan = createServerFn({ method: "POST" })
 
     const query = (data.query ?? "").trim();
     const hits = searchCatalog(query, 1);
-    if (!hits[0]) throw new Error("No match. Try a model name like Sony XM5 or iPhone 13.");
+    if (!hits[0]) throw new Error("Ingen träff. Prova modellnamn som Sony XM5 eller iPhone 13.");
     const condition = (data.condition ?? "good") as Condition;
     const items = [priceItem({ catalog: hits[0], condition, askingCents })];
     const full = buildFull({

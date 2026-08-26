@@ -13,8 +13,8 @@ export type Sku = {
 export const SKUS: Record<SkuId, Sku> = {
   report: {
     id: "report",
-    name: "Unlock report",
-    blurb: "Exact take-home, ask/accept prices, ranked channels.",
+    name: "Lås upp rapport",
+    blurb: "Exakt netto, ask/accept och rankade kanaler.",
     amountCents: 249,
     currency: "eur",
     credits: 0,
@@ -22,8 +22,8 @@ export const SKUS: Record<SkuId, Sku> = {
   },
   extract: {
     id: "extract",
-    name: "Extract kit",
-    blurb: "Report plus listing copy, titles, and lowball replies for every item.",
+    name: "Extract-kit",
+    blurb: "Rapport plus annonstext, titlar och svar på lowball.",
     amountCents: 690,
     currency: "eur",
     credits: 0,
@@ -31,8 +31,8 @@ export const SKUS: Record<SkuId, Sku> = {
   },
   pack: {
     id: "pack",
-    name: "5-extract pack",
-    blurb: "Five extract kits. For a drawer, a move, or a closet.",
+    name: "5-pack",
+    blurb: "Fem kit. För en låda, en flytt eller en garderob.",
     amountCents: 990,
     currency: "eur",
     credits: 5,

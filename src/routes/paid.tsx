@@ -57,19 +57,19 @@ function PaidPage() {
   return (
     <Shell>
       <h1 className="font-display text-3xl tracking-tight">
-        {state === "working" && "Confirming payment"}
-        {state === "ok" && "Unlocked"}
-        {state === "fail" && "Payment not confirmed"}
+        {state === "working" && "Bekräftar betalning"}
+        {state === "ok" && "Upplåst"}
+        {state === "fail" && "Betalningen bekräftades inte"}
       </h1>
       <p className="mt-3 text-sm text-muted">
-        {state === "working" && "Folding the receipt into the report."}
-        {state === "ok" && "Your report is open. If you were not redirected, use the scan link."}
-        {state === "fail" && "If you were charged, the webhook will still unlock the scan. Refresh in a moment."}
+        {state === "working" && "Vi lägger kvittot i rapporten."}
+        {state === "ok" && "Rapporten är öppen. Sparad under Mina rapporter."}
+        {state === "fail" && "Om du debiterades låser webhooken upp scannen. Uppdatera om en stund."}
       </p>
       {search.token && (
         <p className="mt-6">
           <Link to="/s/$token" params={{ token: search.token }} className="text-sm underline">
-            Open the scan
+            Öppna rapporten
           </Link>
         </p>
       )}

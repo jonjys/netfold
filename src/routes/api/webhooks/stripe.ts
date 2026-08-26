@@ -45,6 +45,7 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
               amountCents: Number(obj.amount_total ?? SKUS[sku].amountCents),
               scanToken: metadata.scan_token,
               walletToken: metadata.wallet,
+              userId: metadata.user_id,
             });
           }
         }

@@ -12,10 +12,10 @@ export const CONDITION_MULT: Record<Condition, number> = {
 };
 
 export const CONDITION_LABEL: Record<Condition, string> = {
-  like_new: "Like new",
-  good: "Good",
-  fair: "Fair",
-  poor: "Poor",
+  like_new: "Som ny",
+  good: "Bra",
+  fair: "Okej",
+  poor: "Sliten",
 };
 
 export type ChannelQuote = {
