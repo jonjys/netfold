@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Netfold">
+  <rect width="32" height="32" rx="7" fill="#0b0b0c"/>
+  <path fill="#f4f4f5" d="M8 6h12l6 6v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/>
+  <path fill="#9a9aa3" d="M20 6v6h6z"/>
+  <rect x="10" y="16" width="10" height="2.2" fill="#141416"/>
+  <rect x="10" y="21" width="7" height="2.2" fill="#141416"/>
+</svg>
