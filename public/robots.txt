@@ -1,2 +1,12 @@
 User-agent: *
 Allow: /
+Allow: /market
+Allow: /i/
+Allow: /check
+Disallow: /ops
+Disallow: /api/
+Disallow: /login
+Disallow: /paid
+Disallow: /mina-kop
+
+Sitemap: https://www.netfold.site/sitemap.xml
