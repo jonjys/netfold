@@ -175,8 +175,8 @@ function ItemStack({ full }: { full: ScanFull }) {
             </p>
           </div>
           <dl className="mt-4 grid grid-cols-3 gap-2 text-xs">
-            <Stat label="Ask" value={formatEuro(item.askCents)} />
-            <Stat label="Accept" value={formatEuro(item.acceptCents)} />
+            <Stat label="Utrop" value={formatEuro(item.askCents)} />
+            <Stat label="Acceptera" value={formatEuro(item.acceptCents)} />
             <Stat label="Gå" value={formatEuro(item.walkCents)} />
           </dl>
           <ol className="mt-4 grid gap-1.5">

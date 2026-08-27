@@ -13,8 +13,8 @@ function ScanPage() {
   if (!data.ok) {
     return (
       <Shell>
-        <h1 className="font-display text-3xl tracking-tight">Scan not found</h1>
-        <p className="mt-2 text-sm text-muted">The link is invalid or expired.</p>
+        <h1 className="font-display text-3xl tracking-tight">Scanen hittades inte</h1>
+        <p className="mt-2 text-sm text-muted">Länken är ogiltig eller har gått ut.</p>
       </Shell>
     );
   }

@@ -19,48 +19,48 @@ function OpsPage() {
 
   return (
     <Shell>
-      <p className="text-xs uppercase tracking-[0.2em] text-subtle">Owner only</p>
-      <h1 className="mt-3 font-display text-4xl tracking-tight">Machine</h1>
+      <p className="text-xs uppercase tracking-[0.2em] text-subtle">Endast ägare</p>
+      <h1 className="mt-3 font-display text-4xl tracking-tight">Maskin</h1>
       <p className="mt-2 max-w-lg text-sm text-muted">
-        Whether money is moving. No customer records on this screen.
+        Om pengarna rör sig. Inga kundregister på den här sidan.
       </p>
       <div className="mt-4 max-w-xs">
         <Input
           value={key}
           onChange={(e) => setKey(e.target.value)}
-          placeholder="Operator key"
+          placeholder="Operatörsnyckel"
           type="password"
           autoComplete="off"
         />
       </div>
 
       {!data ? (
-        <p className="mt-8 text-sm text-muted">Loading ledger…</p>
+        <p className="mt-8 text-sm text-muted">Laddar ledger…</p>
       ) : !data.ok ? (
-        <p className="mt-8 text-sm text-muted">Locked. Enter the operator key.</p>
+        <p className="mt-8 text-sm text-muted">Låst. Ange operatörsnyckeln.</p>
       ) : (
         <div className="mt-8 grid gap-4">
           <section>
-            <h2 className="text-xs uppercase tracking-[0.16em] text-subtle">Today</h2>
+            <h2 className="text-xs uppercase tracking-[0.16em] text-subtle">Idag</h2>
             <div className="mt-3 grid grid-cols-2 gap-3">
-              <Metric label="Revenue" value={formatEuro(data.today.revenue, true)} />
-              <Metric label="Transactions" value={String(data.today.transactions)} />
+              <Metric label="Intäkt" value={formatEuro(data.today.revenue, true)} />
+              <Metric label="Transaktioner" value={String(data.today.transactions)} />
             </div>
           </section>
           <section>
-            <h2 className="text-xs uppercase tracking-[0.16em] text-subtle">Last 7 days</h2>
+            <h2 className="text-xs uppercase tracking-[0.16em] text-subtle">Senaste 7 dagarna</h2>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Metric label="Revenue" value={formatEuro(data.week.revenue, true)} />
+              <Metric label="Intäkt" value={formatEuro(data.week.revenue, true)} />
               <Metric label="Tx" value={String(data.week.transactions)} />
               <Metric label="Scans" value={String(data.week.scans)} />
               <Metric
-                label="Conversion"
+                label="Konvertering"
                 value={`${Math.round(data.week.conversion * 100)}%`}
               />
-              <Metric label="AI cost" value={formatEuro(data.week.aiCost, true)} />
-              <Metric label="Stripe cost" value={formatEuro(data.week.stripeCost, true)} />
-              <Metric label="Gross" value={formatEuro(data.week.gross, true)} />
-              <Metric label="Top SKU" value={data.week.topSku} />
+              <Metric label="AI-kostnad" value={formatEuro(data.week.aiCost, true)} />
+              <Metric label="Stripe-kostnad" value={formatEuro(data.week.stripeCost, true)} />
+              <Metric label="Brutto" value={formatEuro(data.week.gross, true)} />
+              <Metric label="Topp-SKU" value={data.week.topSku} />
             </div>
           </section>
           <section>

@@ -7,7 +7,11 @@ import { BRAND } from "@/lib/brand";
 function AuthSlot() {
   const { user, isPending } = useCurrentUserState();
   if (isPending) {
-    return <div className="h-8 w-24 animate-pulse rounded-full bg-surface-2" />;
+    return (
+      <span className="rounded-md px-3 py-2 text-sm font-medium text-muted">
+        Logga in
+      </span>
+    );
   }
   if (user) {
     return (

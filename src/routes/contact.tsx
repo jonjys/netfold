@@ -3,17 +3,17 @@ import { LegalPage } from "@/components/legal";
 
 export const Route = createFileRoute("/contact")({
   component: () => (
-    <LegalPage title="Contact">
+    <LegalPage title="Kontakt">
       <p>
-        Netfold is automated. Payment issues go through the Stripe receipt. Product
-        issues: reopen your scan link. If access did not unlock after a successful
-        payment, keep the receipt — fulfilment is keyed to the Stripe session.
+        Netfold är automatiserat. Betalningsfrågor går via Stripe-kvittot.
+        Produktfrågor: öppna din scan-länk. Om åtkomsten inte låstes upp efter
+        lyckad betalning — spara kvittot. Leveransen är knuten till Stripe-sessionen.
       </p>
       <p>
-        Legal notices: the operator of this software is the GitHub account that
-        publishes the repository <span className="text-fg">jonjys/netfold</span>.
+        Juridiska meddelanden: operatören är GitHub-kontot som publicerar
+        repot <span className="text-fg">jonjys/netfold</span>.
       </p>
-      <p>There is no chat queue. That is the point.</p>
+      <p>Det finns ingen chattkö. Det är poängen.</p>
     </LegalPage>
   ),
 });

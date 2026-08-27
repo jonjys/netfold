@@ -3,20 +3,22 @@ import { LegalPage } from "@/components/legal";
 
 export const Route = createFileRoute("/refund")({
   component: () => (
-    <LegalPage title="Refunds">
+    <LegalPage title="Återköp">
       <p>
-        Reports and extract kits are digital and delivered immediately. If the unlock
-        did not appear, open the original scan link or contact us from the receipt —
-        we will restore access. That is not a product-quality dispute; it is a
-        fulfilment repair.
+        Rapporter och extract-kit är digitala och levereras direkt. Om upplåsningen
+        inte syns: öppna samma scan-länk eller kontakta oss via kvittot — då
+        återställer vi åtkomsten. Det är en leveransreparation, inte en
+        kvalitetsreklamation.
       </p>
       <p>
-        Because the numbers and copy are visible the moment you pay, we do not refund
-        simply because you disagree with a price. If identification is obviously wrong
-        (the model is not the item), ask for a refund within 24 hours and include the
-        scan link.
+        Siffrorna syns i samma ögonblick du betalar. Vi återbetalar inte bara för
+        att du tycker att priset är fel. Om identifieringen uppenbart är fel (fel
+        modell) kan du begära återköp inom 24 timmar och skicka med scan-länken.
       </p>
-      <p>EU withdrawal rights for digital content end when delivery starts, after you are told that.</p>
+      <p>
+        Ångerrätten för digitalt innehåll i EU upphör när leveransen börjar, efter
+        att du informerats om det.
+      </p>
     </LegalPage>
   ),
 });

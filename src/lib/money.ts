@@ -1,10 +1,10 @@
-const EUR = new Intl.NumberFormat("en-EU", {
+const EUR = new Intl.NumberFormat("sv-SE", {
   style: "currency",
   currency: "EUR",
   maximumFractionDigits: 0,
 });
 
-const EUR_EXACT = new Intl.NumberFormat("en-EU", {
+const EUR_EXACT = new Intl.NumberFormat("sv-SE", {
   style: "currency",
   currency: "EUR",
   minimumFractionDigits: 2,

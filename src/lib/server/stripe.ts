@@ -2,13 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { getSessionUser } from "@/lib/auth/verify.server";
 import { getSql } from "@/lib/db";
+import { cookieHasConsent } from "@/lib/consent";
 import { buildAllKits } from "@/lib/listings";
 import { SKUS, STRIPE_PRICE_DEFAULT, type SkuId } from "@/lib/skus";
 import { newId } from "@/lib/utils";
 import { loadScan, saveScan } from "./scan";
-import { ensureStripeCustomer, recordPurchase, requireConsent } from "./accounts";
+import { ensureStripeCustomer, recordPurchase } from "./accounts";
 
 function stripeSecret(): string | undefined {
   const key = process.env.STRIPE_SECRET_KEY?.trim();
@@ -127,15 +127,13 @@ export const startCheckout = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    requireConsent();
+    if (!cookieHasConsent(getRequestHeader("cookie"))) {
+      throw new Error("Cookies required");
+    }
     const sku = SKUS[data.sku];
     const secret = stripeSecret();
     const origin = publicOrigin();
-    const sessionUser = await getSessionUser();
-    const customerId = await ensureStripeCustomer(
-      context.userId,
-      sessionUser?.email ?? null,
-    );
+    const customerId = await ensureStripeCustomer(context.userId, null);
     const success =
       `${origin}/paid?sku=${data.sku}` +
       (data.scanToken ? `&token=${data.scanToken}` : "");
@@ -172,7 +170,6 @@ export const startCheckout = createServerFn({ method: "POST" })
     params.set("metadata[user_id]", context.userId);
     params.set("client_reference_id", context.userId);
     if (customerId) params.set("customer", customerId);
-    else if (sessionUser?.email) params.set("customer_email", sessionUser.email);
     if (data.scanToken) params.set("metadata[scan_token]", data.scanToken);
     params.set("allow_promotion_codes", "false");
     params.set("billing_address_collection", "auto");

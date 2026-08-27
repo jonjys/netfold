@@ -1,16 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeader } from "@tanstack/react-start/server";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { getSessionUser } from "@/lib/auth/verify.server";
 import { getSql } from "@/lib/db";
-import { cookieHasConsent } from "@/lib/consent";
 import { newId } from "@/lib/utils";
-
-export function requireConsent() {
-  if (!cookieHasConsent(getRequestHeader("cookie"))) {
-    throw new Error("Cookies required");
-  }
-}
 
 export async function ensureAccount(userId: string, email: string | null, name?: string | null) {
   const sql = await getSql();
@@ -79,9 +70,8 @@ export const listMyPurchases = createServerFn({ method: "GET" })
 export const bootstrapAccount = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const session = await getSessionUser();
-    await ensureAccount(context.userId, session?.email ?? null);
-    const customerId = await ensureStripeCustomer(context.userId, session?.email ?? null);
+    await ensureAccount(context.userId, null);
+    const customerId = await ensureStripeCustomer(context.userId, null);
     return { ok: true as const, customerId };
   });
 

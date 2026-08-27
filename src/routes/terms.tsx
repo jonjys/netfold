@@ -3,24 +3,24 @@ import { LegalPage } from "@/components/legal";
 
 export const Route = createFileRoute("/terms")({
   component: () => (
-    <LegalPage title="Terms">
+    <LegalPage title="Villkor">
       <p>
-        Netfold is software that estimates used-goods take-home value and sells
-        digital reports and listing kits. We are not a marketplace, broker,
-        pawn shop, or buyer of your items. We do not take possession of goods
-        and we do not hold buyer funds.
+        Netfold är programvara som uppskattar vad du får kvar när du säljer
+        begagnat, och säljer digitala rapporter och annonskit. Vi är inte en
+        marknadsplats, mäklare, pantbank eller köpare av dina prylar. Vi tar inte
+        hand om varor och vi håller inte köparens pengar.
       </p>
       <p>
-        Estimates use a public catalog, published marketplace fee schedules, and
-        (when you upload a photo) an identification model. They are not appraisals,
-        guarantees, or offers to purchase. Sold prices move. Condition is a guess.
+        Uppskattningarna bygger på en katalog, publicerade avgifter och (om du
+        laddar upp foto) en identifieringsmodell. Det är inte värderingar,
+        garantier eller bud. Sålda priser rör sig. Skick är en gissning.
       </p>
       <p>
-        Payment is charged by Stripe. You receive a digital unlock against the scan
-        token. Chargebacks may reverse the unlock. Do not upload photos of other
-        people, illegal goods, or anything you do not have the right to process.
+        Betalning tas av Stripe. Du får en digital upplåsning mot scan-token.
+        Chargeback kan låsa igen. Ladda inte upp foton på andra personer, olagliga
+        varor eller något du inte har rätt att behandla.
       </p>
-      <p>Swedish and EU consumer rules apply where they must. Governing law: Sweden.</p>
+      <p>Svensk och EU-konsumenträtt gäller där den måste. Tillämplig lag: Sverige.</p>
     </LegalPage>
   ),
 });

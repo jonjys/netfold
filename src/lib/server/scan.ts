@@ -6,7 +6,6 @@ import { blurRange, priceItem, sumBest, type Condition, type PricedItem } from "
 import type { ScanFull, ScanMode, ScanTeaser } from "@/lib/types";
 import { newId } from "@/lib/utils";
 import { getSql } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth/verify.server";
 import { identifyPhoto } from "./xai";
 
 const walletSchema = z.string().min(16).max(80);
@@ -94,16 +93,13 @@ function buildFull(input: {
 export async function persistScan(full: ScanFull, wallet: string, imageHash: string | null) {
   const sql = await getSql();
   const teaser = toTeaser(full);
-  const session = await getSessionUser();
-  const userId = session?.id ?? null;
   await sql`insert into scans (
       id, token, wallet_token, mode, source, image_hash, item_count,
-      teaser_json, full_json, unlocked, has_kit, public_slug, asking_cents, user_id
+      teaser_json, full_json, unlocked, has_kit, public_slug, asking_cents
     ) values (
       ${newId()}, ${full.token}, ${wallet}, ${full.mode}, ${full.source}, ${imageHash},
       ${full.itemCount}, ${JSON.stringify(teaser)}, ${JSON.stringify(full)},
-      ${full.unlocked}, ${full.hasKit}, ${full.items[0]?.slug ?? null}, ${full.askingCents},
-      ${userId}
+      ${full.unlocked}, ${full.hasKit}, ${full.items[0]?.slug ?? null}, ${full.askingCents}
     )`;
   await sql`insert into events (id, name, scan_token, source)
     values (${newId()}, ${"scan_created"}, ${full.token}, ${full.source})`;
