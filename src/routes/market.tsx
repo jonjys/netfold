@@ -3,6 +3,7 @@ import { Shell } from "@/components/shell";
 import { formatEuroRange } from "@/lib/money";
 import { listMarket } from "@/lib/server/public";
 import { useI18n } from "@/lib/i18n";
+import { channelCopyKey } from "@/lib/channels";
 
 export const Route = createFileRoute("/market")({
   loader: () => listMarket({ data: {} }),
@@ -28,7 +29,7 @@ function MarketPage() {
               <span>
                 <span className="block text-sm">{row.name}</span>
                 <span className="text-xs text-subtle">
-                  {row.brand} · {row.bestChannelShort}
+                  {row.brand} · {t(channelCopyKey(row.bestChannelId, row.bestChannelShort))}
                 </span>
               </span>
               <span className="font-mono text-sm tabular-nums text-muted">

@@ -47,6 +47,7 @@ function toTeaser(full: ScanFull): ScanTeaser {
     rangeHighCents: full.rangeHighCents,
     trappedVsInstantCents: full.trappedVsInstantCents,
     bestChannelShort: full.bestChannelShort,
+    bestChannelId: full.bestChannelId,
     unlocked: full.unlocked,
     hasKit: full.hasKit,
   };
@@ -80,7 +81,8 @@ function buildFull(input: {
     rangeLowCents: range.low,
     rangeHighCents: range.high,
     trappedVsInstantCents: trapped,
-    bestChannelShort: best?.short ?? "Lokalt",
+    bestChannelShort: best?.short ?? "Local",
+    bestChannelId: best?.channelId ?? "local",
     unlocked: input.unlocked ?? false,
     hasKit: input.hasKit ?? false,
     items: input.items,

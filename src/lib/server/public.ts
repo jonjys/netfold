@@ -18,6 +18,7 @@ function rowFromSlug(slug: string): PublicIndexRow | null {
     rangeLowCents: range.low,
     rangeHighCents: range.high,
     bestChannelShort: priced.quotes[0]?.short ?? "Local",
+    bestChannelId: priced.quotes[0]?.channelId ?? "local",
   };
 }
 
@@ -60,6 +61,7 @@ export const getPublicItem = createServerFn({ method: "GET" })
         rangeLowCents: blurRange(good.bestTakeHomeCents).low,
         rangeHighCents: blurRange(good.bestTakeHomeCents).high,
         bestChannelShort: good.quotes[0]?.short ?? "Local",
+        bestChannelId: good.quotes[0]?.channelId ?? "local",
         trappedVsInstantCents: good.trappedVsInstantCents,
       },
     };

@@ -1,5 +1,6 @@
 import type { ExtractKit } from "./listings";
 import type { PricedItem } from "./pricing";
+import type { ChannelId } from "./channels";
 
 export type ScanMode = "sell" | "buy";
 
@@ -14,6 +15,7 @@ export type ScanTeaser = {
   rangeHighCents: number;
   trappedVsInstantCents: number;
   bestChannelShort: string;
+  bestChannelId?: ChannelId;
   unlocked: boolean;
   hasKit: boolean;
 };
@@ -34,4 +36,5 @@ export type PublicIndexRow = {
   rangeLowCents: number;
   rangeHighCents: number;
   bestChannelShort: string;
+  bestChannelId?: ChannelId;
 };

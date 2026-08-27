@@ -13,6 +13,7 @@ import { getWalletToken } from "@/lib/wallet-client";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import type { CopyKey } from "@/lib/copy";
+import { channelCopyKey } from "@/lib/channels";
 
 function isFull(view: ScanTeaser | ScanFull): view is ScanFull {
   return "items" in view && Array.isArray((view as ScanFull).items);
@@ -24,6 +25,7 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
   const router = useRouter();
   const { t } = useI18n();
   const skuName = { report: t("skuReport"), extract: t("skuExtract"), pack: t("skuPack") };
+  const bestChannel = t(channelCopyKey(view.bestChannelId, view.bestChannelShort));
 
   async function pay(sku: "report" | "extract" | "pack") {
     if (!hasAcceptedConsent()) {
@@ -71,7 +73,7 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
         </h1>
         <p className="mt-4 max-w-md text-sm text-muted">
           {view.itemCount === 1 ? view.names[0] : `${view.itemCount} ${t("items")}`} · {t("bestNet")}{" "}
-          {view.bestChannelShort}
+          {bestChannel}
           {view.trappedVsInstantCents > 800
             ? ` · ${t("instantLeaves")} ${unlocked ? formatEuro(view.trappedVsInstantCents) : t("aLot")} ${t("onTable")}`
             : null}
@@ -171,7 +173,7 @@ function ItemStack({ full }: { full: ScanFull }) {
                 )}
               >
                 <span className="text-muted">
-                  {q.rank}. {q.short}
+                  {q.rank}. {t(channelCopyKey(q.channelId, q.short))}
                   <span className="ml-2 text-xs text-subtle">{q.daysToSold}d</span>
                 </span>
                 <span className="font-mono tabular-nums">

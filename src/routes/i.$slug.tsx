@@ -4,6 +4,7 @@ import { Shell } from "@/components/shell";
 import { formatEuro, formatEuroRange } from "@/lib/money";
 import { getPublicItem } from "@/lib/server/public";
 import { useI18n } from "@/lib/i18n";
+import { channelCopyKey } from "@/lib/channels";
 
 export const Route = createFileRoute("/i/$slug")({
   loader: async ({ params }) => getPublicItem({ data: { slug: params.slug } }),
@@ -31,7 +32,7 @@ function ItemPage() {
         {formatEuroRange(teaser.rangeLowCents, teaser.rangeHighCents)}
       </p>
       <p className="mt-3 text-sm text-muted">
-        {t("itemBest")} {teaser.bestChannelShort}. {t("itemInstant")}{" "}
+        {t("itemBest")} {t(channelCopyKey(teaser.bestChannelId, teaser.bestChannelShort))}. {t("itemInstant")}{" "}
         {formatEuro(teaser.trappedVsInstantCents)} {t("itemOnTable")}
       </p>
       <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
