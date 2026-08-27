@@ -18,11 +18,11 @@ Everyone else quotes a sold-comp vanity number. Netfold ranks **what you keep af
 | Extract kit | €6.90 | Report + listing copy for local / Facebook / Vinted / eBay |
 | 5-extract pack | €9.90 | Five kits. Credits sit on a browser wallet token |
 
-Stripe products (live, already created on the connected account):
+Stripe products (live, NETFOLD account `acct_1U96jtIz5w9JsopQ`):
 
-- `netfold_report` → `price_1U8mk3BEo0Yzuylwi2JJrWiF`
-- `netfold_extract` → `price_1U8mk5BEo0Yzuylw3xTpywzM`
-- `netfold_pack` → `price_1U8mk7BEo0YzuylwI70qxILE`
+- Report €2.49 → `price_1U96y2Iz5w9JsopQXAKOsPBq`
+- Extract kit €6.90 → `price_1U96y4Iz5w9JsopQ41vSjS56`
+- 5-pack €9.90 → `price_1U96y6Iz5w9JsopQ1lkArRXH`
 
 Without `STRIPE_SECRET_KEY` the app still fulfils in **preview mode** so the machine can be walked end-to-end. Preview payments are labelled `provider=preview` and are not real charges.
 

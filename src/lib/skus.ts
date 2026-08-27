@@ -41,8 +41,8 @@ export const SKUS: Record<SkuId, Sku> = {
 };
 
 export const STRIPE_PRICE_DEFAULT: Record<SkuId, string> = {
-  report: "price_1U8mk3BEo0Yzuylwi2JJrWiF",
-  extract: "price_1U8mk5BEo0Yzuylw3xTpywzM",
-  pack: "price_1U8mk7BEo0YzuylwI70qxILE",
+  report: "price_1U96y2Iz5w9JsopQXAKOsPBq",
+  extract: "price_1U96y4Iz5w9JsopQ41vSjS56",
+  pack: "price_1U96y6Iz5w9JsopQ1lkArRXH",
 };
 
