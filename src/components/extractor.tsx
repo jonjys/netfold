@@ -5,10 +5,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { compressImage } from "@/lib/image";
-import { CONDITION_LABEL, type Condition } from "@/lib/pricing";
+import { type Condition } from "@/lib/pricing";
 import { createScan, searchItems } from "@/lib/server/scan";
 import { getWalletToken } from "@/lib/wallet-client";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
+import type { CopyKey } from "@/lib/copy";
 
 const QUICK = [
   { id: "sony-xm5", label: "Sony XM5" },
@@ -30,6 +32,13 @@ export function Extractor({
   const [condition, setCondition] = useState<Condition>("good");
   const [asking, setAsking] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const { t } = useI18n();
+  const condLabel: Record<Condition, CopyKey> = {
+    like_new: "condLikeNew",
+    good: "condGood",
+    fair: "condFair",
+    poor: "condPoor",
+  };
 
   useEffect(() => {
     const q = query.trim();
@@ -64,7 +73,7 @@ export function Extractor({
       });
       await navigate({ to: "/s/$token", params: { token: result.token } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Kunde inte prissätta.");
+      toast.error(err instanceof Error ? err.message : t("errPrice"));
     } finally {
       setBusy(null);
     }
@@ -86,7 +95,7 @@ export function Extractor({
       });
       await navigate({ to: "/s/$token", params: { token: result.token } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Ingen träff.");
+      toast.error(err instanceof Error ? err.message : t("errMiss"));
     } finally {
       setBusy(null);
     }
@@ -108,7 +117,7 @@ export function Extractor({
       });
       await navigate({ to: "/s/$token", params: { token: result.token } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Foto gick inte att läsa.");
+      toast.error(err instanceof Error ? err.message : t("errPhoto"));
     } finally {
       setBusy(null);
     }
@@ -119,8 +128,8 @@ export function Extractor({
       <div className="flex rounded-xl bg-bg p-1">
         {(
           [
-            ["sell", "Sälj detta"],
-            ["buy", "Kolla en ask"],
+            ["sell", t("sellThis")],
+            ["buy", t("checkAsk")],
           ] as const
         ).map(([id, label]) => (
           <button
@@ -148,7 +157,7 @@ export function Extractor({
             }}
             placeholder="iPhone 13, Sony XM5, PS5…"
             className="pl-9"
-            aria-label="Pryl"
+            aria-label={t("priceIt")}
           />
           {hits.length > 0 && (
             <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg bg-surface-2 shadow-[var(--shadow-border)]">
@@ -176,7 +185,7 @@ export function Extractor({
             {busy === "search" ? (
               <LoaderCircle className="size-4 animate-spin" />
             ) : (
-              "Prissätt"
+              t("priceIt")
             )}
           </Button>
           <Button
@@ -191,7 +200,7 @@ export function Extractor({
             ) : (
               <Camera className="size-4" />
             )}
-            Foto
+            {t("photo")}
           </Button>
         </div>
       </div>
@@ -206,7 +215,7 @@ export function Extractor({
       />
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => (
+        {(Object.keys(condLabel) as Condition[]).map((c) => (
           <button
             key={c}
             type="button"
@@ -218,7 +227,7 @@ export function Extractor({
                 : "bg-surface-2 text-muted",
             )}
           >
-            {CONDITION_LABEL[c]}
+            {t(condLabel[c])}
           </button>
         ))}
         {mode === "buy" && (
@@ -226,7 +235,7 @@ export function Extractor({
             inputMode="decimal"
             value={asking}
             onChange={(e) => setAsking(e.target.value)}
-            placeholder="Utrop €"
+            placeholder={t("askingPh")}
             className="h-9 w-28 text-xs"
             aria-label="Asking price"
           />
@@ -242,7 +251,7 @@ export function Extractor({
             onClick={() => void runCatalog(q.id)}
             className="h-9 rounded-full bg-bg px-3 text-xs text-muted shadow-[var(--shadow-border)] hover:text-fg"
           >
-            {busy === q.id ? "Räknar…" : `Prova ${q.label}`}
+            {busy === q.id ? t("counting") : `${t("try")} ${q.label}`}
           </button>
         ))}
       </div>

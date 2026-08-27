@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Shell } from "@/components/shell";
 import { formatEuroRange } from "@/lib/money";
 import { listMarket } from "@/lib/server/public";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/market")({
   loader: () => listMarket({ data: {} }),
@@ -10,13 +11,12 @@ export const Route = createFileRoute("/market")({
 
 function MarketPage() {
   const rows = Route.useLoaderData();
+  const { t } = useI18n();
   return (
     <Shell>
-      <p className="text-xs uppercase tracking-[0.2em] text-subtle">Prisindex</p>
-      <h1 className="mt-3 font-display text-4xl tracking-tight">Vad begagnat faktiskt ger i fickan</h1>
-      <p className="mt-3 max-w-lg text-sm text-muted">
-        Nettospann i bra skick. Inte utropspriser. Varje rad är en sida du kan dela.
-      </p>
+      <p className="text-xs uppercase tracking-[0.2em] text-subtle">{t("marketKicker")}</p>
+      <h1 className="mt-3 font-display text-4xl tracking-tight">{t("marketTitle")}</h1>
+      <p className="mt-3 max-w-lg text-sm text-muted">{t("marketLead")}</p>
       <ul className="mt-8 divide-y divide-border rounded-2xl bg-surface shadow-[var(--shadow-border)]">
         {rows.map((row) => (
           <li key={row.slug}>

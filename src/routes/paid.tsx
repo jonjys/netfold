@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Shell } from "@/components/shell";
 import { confirmSession } from "@/lib/server/stripe";
+import { useI18n } from "@/lib/i18n";
 
 type PaidSearch = {
   session_id?: string;
@@ -24,6 +25,7 @@ function PaidPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const [state, setState] = useState<"working" | "ok" | "fail">("working");
+  const { t } = useI18n();
 
   useEffect(() => {
     let cancelled = false;
@@ -57,19 +59,19 @@ function PaidPage() {
   return (
     <Shell>
       <h1 className="font-display text-3xl tracking-tight">
-        {state === "working" && "Bekräftar betalning"}
-        {state === "ok" && "Upplåst"}
-        {state === "fail" && "Betalningen bekräftades inte"}
+        {state === "working" && t("paidWorking")}
+        {state === "ok" && t("paidOk")}
+        {state === "fail" && t("paidFail")}
       </h1>
       <p className="mt-3 text-sm text-muted">
-        {state === "working" && "Vi lägger kvittot i rapporten."}
-        {state === "ok" && "Rapporten är öppen. Sparad under Mina rapporter."}
-        {state === "fail" && "Om du debiterades låser webhooken upp scannen. Uppdatera om en stund."}
+        {state === "working" && t("paidWorkingLead")}
+        {state === "ok" && t("paidOkLead")}
+        {state === "fail" && t("paidFailLead")}
       </p>
       {search.token && (
         <p className="mt-6">
           <Link to="/s/$token" params={{ token: search.token }} className="text-sm underline">
-            Öppna rapporten
+            {t("openReport")}
           </Link>
         </p>
       )}

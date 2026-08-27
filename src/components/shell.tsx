@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { BRAND } from "@/lib/brand";
+import { useI18n } from "@/lib/i18n";
 
 export function Shell({ children }: { children: ReactNode }) {
+  const { lang, setLang, t } = useI18n();
   return (
     <div className="min-h-dvh bg-bg text-fg">
       <header className="sticky top-0 z-20 border-b border-border bg-bg/85 backdrop-blur-md">
@@ -13,38 +15,54 @@ export function Shell({ children }: { children: ReactNode }) {
           <nav className="flex items-center gap-1 text-sm">
             <Link
               to="/market"
-              className="rounded-md px-3 py-2 text-muted hover:text-fg"
+              className="hidden rounded-md px-3 py-2 text-muted hover:text-fg sm:inline"
             >
-              Prisindex
+              {t("navIndex")}
             </Link>
             <Link
               to="/check"
-              className="rounded-md px-3 py-2 text-muted hover:text-fg"
+              className="hidden rounded-md px-3 py-2 text-muted hover:text-fg sm:inline"
             >
-              Kolla en ask
+              {t("navCheck")}
             </Link>
+            <div className="ml-1 flex rounded-md bg-surface-2 p-0.5 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setLang("en")}
+                className={`rounded px-2 py-1 ${lang === "en" ? "bg-surface text-fg" : "text-muted"}`}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("sv")}
+                className={`rounded px-2 py-1 ${lang === "sv" ? "bg-surface text-fg" : "text-muted"}`}
+              >
+                SV
+              </button>
+            </div>
           </nav>
         </div>
       </header>
       <div className="mx-auto max-w-5xl px-4 pb-16 pt-6">{children}</div>
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-8 text-xs text-subtle">
-          <p>Netfold visar vad du får kvar, inte vad du ska be om.</p>
+          <p>{t("footerLine")}</p>
           <div className="flex flex-wrap gap-4">
             <Link to="/terms" className="hover:text-fg">
-              Villkor
+              {t("terms")}
             </Link>
             <Link to="/privacy" className="hover:text-fg">
-              Integritet
+              {t("privacy")}
             </Link>
             <Link to="/refund" className="hover:text-fg">
-              Återköp
+              {t("refunds")}
             </Link>
             <Link to="/contact" className="hover:text-fg">
-              Kontakt
+              {t("contact")}
             </Link>
             <Link to="/ops" className="hover:text-fg">
-              Maskin
+              {t("machine")}
             </Link>
           </div>
         </div>

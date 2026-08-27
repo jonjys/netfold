@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { readConsent, writeConsent } from "@/lib/consent";
+import { useI18n } from "@/lib/i18n";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     setVisible(readConsent() === null);
@@ -16,9 +18,9 @@ export function CookieBanner() {
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface p-4 shadow-[0_-8px_30px_rgba(28,27,24,0.08)]">
       <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted">
-          Vi använder cookies för att betalning och inloggning ska fungera.{" "}
+          {t("cookie")}{" "}
           <Link to="/privacy" className="underline underline-offset-2 hover:text-fg">
-            Läs mer
+            {t("cookieMore")}
           </Link>
           .
         </p>
@@ -31,7 +33,7 @@ export function CookieBanner() {
               setVisible(false);
             }}
           >
-            Avböj
+            {t("cookieNo")}
           </Button>
           <Button
             size="sm"
@@ -40,7 +42,7 @@ export function CookieBanner() {
               setVisible(false);
             }}
           >
-            OK
+            {t("cookieOk")}
           </Button>
         </div>
       </div>

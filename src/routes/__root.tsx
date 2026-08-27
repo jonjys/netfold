@@ -1,5 +1,6 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth/provider";
+import { LangProvider } from "@/lib/i18n";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { CookieBanner } from "@/components/cookie-banner";
 import { Toaster } from "sonner";
@@ -36,13 +37,14 @@ export const Route = createRootRoute({
     ],
   }),
   component: () => (
-    <html lang="sv" className="antialiased" suppressHydrationWarning>
+    <html lang="en" className="antialiased" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body className="bg-bg text-fg">
         <PreviewHostBridge />
         <AuthProvider>
+          <LangProvider>
           <Outlet />
           <CookieBanner />
           <Toaster
@@ -56,6 +58,7 @@ export const Route = createRootRoute({
               },
             }}
           />
+          </LangProvider>
         </AuthProvider>
         <Scripts />
       </body>
