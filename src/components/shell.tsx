@@ -1,41 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { UserButton } from "@/lib/auth/gates";
-import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { BRAND } from "@/lib/brand";
-
-function AuthSlot() {
-  const { user, isPending } = useCurrentUserState();
-  if (isPending) {
-    return (
-      <span className="rounded-md px-3 py-2 text-sm font-medium text-muted">
-        Logga in
-      </span>
-    );
-  }
-  if (user) {
-    return (
-      <div className="flex items-center gap-2">
-        <Link
-          to="/mina-kop"
-          className="hidden rounded-md px-3 py-2 text-sm text-muted hover:text-fg sm:inline"
-        >
-          Mina rapporter
-        </Link>
-        <UserButton />
-      </div>
-    );
-  }
-  return (
-    <Link
-      to="/login"
-      search={{ next: "/" }}
-      className="rounded-md px-3 py-2 text-sm font-medium text-fg hover:bg-surface-2"
-    >
-      Logga in
-    </Link>
-  );
-}
 
 export function Shell({ children }: { children: ReactNode }) {
   return (
@@ -48,17 +13,16 @@ export function Shell({ children }: { children: ReactNode }) {
           <nav className="flex items-center gap-1 text-sm">
             <Link
               to="/market"
-              className="hidden rounded-md px-3 py-2 text-muted hover:text-fg sm:inline"
+              className="rounded-md px-3 py-2 text-muted hover:text-fg"
             >
               Prisindex
             </Link>
             <Link
               to="/check"
-              className="hidden rounded-md px-3 py-2 text-muted hover:text-fg sm:inline"
+              className="rounded-md px-3 py-2 text-muted hover:text-fg"
             >
               Kolla en ask
             </Link>
-            <AuthSlot />
           </nav>
         </div>
       </header>

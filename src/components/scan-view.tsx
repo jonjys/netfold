@@ -3,7 +3,6 @@ import { Check, Copy, Lock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { hasAcceptedConsent } from "@/lib/consent";
 import { formatEuro, formatEuroRange } from "@/lib/money";
 import { CONDITION_LABEL } from "@/lib/pricing";
@@ -22,18 +21,10 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
   const unlocked = view.unlocked && isFull(view);
   const [busy, setBusy] = useState<string | null>(null);
   const router = useRouter();
-  const { user, isPending } = useCurrentUserState();
 
   async function pay(sku: "report" | "extract" | "pack") {
     if (!hasAcceptedConsent()) {
       toast.error("Godkänn cookies först (OK längst ner) så betalningen fungerar.");
-      return;
-    }
-    if (!user) {
-      await router.navigate({
-        to: "/login",
-        search: { next: `/s/${view.token}` },
-      });
       return;
     }
     setBusy(sku);
@@ -52,13 +43,6 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
       window.location.href = session.url;
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
-      if (msg === "Unauthorized") {
-        await router.navigate({
-          to: "/login",
-          search: { next: `/s/${view.token}` },
-        });
-        return;
-      }
       if (msg === "Cookies required") {
         toast.error("Godkänn cookies först.");
         return;
@@ -114,39 +98,31 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
               Exakta belopp, rankade kanaler, ask och accept. Annonstexten är kitet.
             </p>
             <div className="mt-5 grid gap-2">
-              {isPending ? (
-                <div className="h-12 animate-pulse rounded-md bg-surface-2" />
-              ) : (
-                <>
-                  <Button
-                    size="lg"
-                    disabled={Boolean(busy)}
-                    onClick={() => void pay("report")}
-                  >
-                    {user
-                      ? `${SKUS.report.name} · ${formatEuro(SKUS.report.amountCents, true)}`
-                      : "Logga in för att låsa upp"}
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="secondary"
-                    disabled={Boolean(busy)}
-                    onClick={() => void pay("extract")}
-                  >
-                    {SKUS.extract.name} · {formatEuro(SKUS.extract.amountCents, true)}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    disabled={Boolean(busy)}
-                    onClick={() => void pay("pack")}
-                  >
-                    {SKUS.pack.name} · {formatEuro(SKUS.pack.amountCents, true)}
-                  </Button>
-                </>
-              )}
+              <Button
+                size="lg"
+                disabled={Boolean(busy)}
+                onClick={() => void pay("report")}
+              >
+                {SKUS.report.name} · {formatEuro(SKUS.report.amountCents, true)}
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                disabled={Boolean(busy)}
+                onClick={() => void pay("extract")}
+              >
+                {SKUS.extract.name} · {formatEuro(SKUS.extract.amountCents, true)}
+              </Button>
+              <Button
+                variant="ghost"
+                disabled={Boolean(busy)}
+                onClick={() => void pay("pack")}
+              >
+                {SKUS.pack.name} · {formatEuro(SKUS.pack.amountCents, true)}
+              </Button>
             </div>
             <p className="mt-4 text-xs text-subtle">
-              Digital rapport. Direkt. Stripe tar kortet. Sparad på ditt konto.
+              Digital rapport. Direkt. Stripe tar kortet. Spara länken — det är kvittot.
             </p>
           </>
         )}

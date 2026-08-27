@@ -30,7 +30,7 @@ function Home() {
         {[
           { n: "01", t: "Namn eller foto", d: "Identifiera prylen. Skick ingår." },
           { n: "02", t: "Netto per kanal", d: "Lokalt, Blocket, Vinted, eBay, instant." },
-          { n: "03", t: "Lås upp rapporten", d: "Betala en gång. Spara den på kontot." },
+          { n: "03", t: "Lås upp rapporten", d: "Betala en gång. Spara länken." },
         ].map((s) => (
           <article key={s.n} className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
             <p className="font-mono text-xs text-subtle">{s.n}</p>

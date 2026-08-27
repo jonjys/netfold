@@ -1,14 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
-import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { cookieHasConsent } from "@/lib/consent";
 import { buildAllKits } from "@/lib/listings";
 import { SKUS, STRIPE_PRICE_DEFAULT, type SkuId } from "@/lib/skus";
 import { newId } from "@/lib/utils";
 import { loadScan, saveScan } from "./scan";
-import { ensureStripeCustomer, recordPurchase } from "./accounts";
+import { recordPurchase } from "./accounts";
 
 function stripeSecret(): string | undefined {
   const key = process.env.STRIPE_SECRET_KEY?.trim();
@@ -118,7 +117,6 @@ export async function fulfillOrder(input: {
 }
 
 export const startCheckout = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
   .validator(
     z.object({
       sku: z.enum(["report", "extract", "pack"]),
@@ -126,14 +124,13 @@ export const startCheckout = createServerFn({ method: "POST" })
       scanToken: z.string().min(8).max(80).nullable(),
     }),
   )
-  .handler(async ({ context, data }) => {
+  .handler(async ({ data }) => {
     if (!cookieHasConsent(getRequestHeader("cookie"))) {
       throw new Error("Cookies required");
     }
     const sku = SKUS[data.sku];
     const secret = stripeSecret();
     const origin = publicOrigin();
-    const customerId = await ensureStripeCustomer(context.userId, null);
     const success =
       `${origin}/paid?sku=${data.sku}` +
       (data.scanToken ? `&token=${data.scanToken}` : "");
@@ -147,7 +144,6 @@ export const startCheckout = createServerFn({ method: "POST" })
         amountCents: sku.amountCents,
         scanToken: data.scanToken,
         walletToken: data.wallet,
-        userId: context.userId,
       });
       const previewPath =
         `/paid?sku=${data.sku}` +
@@ -167,9 +163,6 @@ export const startCheckout = createServerFn({ method: "POST" })
     params.set("line_items[0][quantity]", "1");
     params.set("metadata[sku]", data.sku);
     params.set("metadata[wallet]", data.wallet);
-    params.set("metadata[user_id]", context.userId);
-    params.set("client_reference_id", context.userId);
-    if (customerId) params.set("customer", customerId);
     if (data.scanToken) params.set("metadata[scan_token]", data.scanToken);
     params.set("allow_promotion_codes", "false");
     params.set("billing_address_collection", "auto");
