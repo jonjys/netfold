@@ -6,7 +6,19 @@ import { formatEuro } from "@/lib/money";
 import { priceItem } from "@/lib/pricing";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Netfold — see what you actually keep" },
+      {
+        name: "description",
+        content:
+          "Name or photo in. Net proceeds after fees, no-shows and instant buyers. Unlock the report when the number is worth it.",
+      },
+    ],
+  }),
+  component: Home,
+});
 
 function Home() {
   const featured = featuredCatalog(6);

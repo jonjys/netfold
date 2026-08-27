@@ -8,6 +8,22 @@ import { channelCopyKey } from "@/lib/channels";
 
 export const Route = createFileRoute("/i/$slug")({
   loader: async ({ params }) => getPublicItem({ data: { slug: params.slug } }),
+  head: ({ loaderData }) => {
+    if (!loaderData || !loaderData.ok) {
+      return { meta: [{ title: "Netfold" }] };
+    }
+    const name = loaderData.catalog.name;
+    const title = `${name} — what you actually keep | Netfold`;
+    const description = `Take-home after fees for a used ${name}. Local, Marketplace, Vinted, eBay and instant — not the asking price.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+      ],
+    };
+  },
   component: ItemPage,
 });
 

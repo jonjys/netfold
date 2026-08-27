@@ -7,6 +7,16 @@ import { channelCopyKey } from "@/lib/channels";
 
 export const Route = createFileRoute("/market")({
   loader: () => listMarket({ data: {} }),
+  head: () => ({
+    meta: [
+      { title: "Used gear take-home index | Netfold" },
+      {
+        name: "description",
+        content:
+          "What used phones, laptops and headphones actually put in your pocket after fees — not asking prices.",
+      },
+    ],
+  }),
   component: MarketPage,
 });
 
