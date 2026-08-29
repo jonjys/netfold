@@ -1,23 +1,23 @@
-const EUR = new Intl.NumberFormat("sv-SE", {
+const SEK = new Intl.NumberFormat("sv-SE", {
   style: "currency",
-  currency: "EUR",
+  currency: "SEK",
   maximumFractionDigits: 0,
 });
 
-const EUR_EXACT = new Intl.NumberFormat("sv-SE", {
+const SEK_EXACT = new Intl.NumberFormat("sv-SE", {
   style: "currency",
-  currency: "EUR",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
+  currency: "SEK",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
 });
 
 export function formatEuro(cents: number, exact = false): string {
   const value = Math.round(cents) / 100;
-  return exact ? EUR_EXACT.format(value) : EUR.format(value);
+  return exact ? SEK_EXACT.format(value) : SEK.format(value);
 }
 
 export function formatEuroRange(lowCents: number, highCents: number): string {
-  if (Math.abs(highCents - lowCents) < 150) return formatEuro(Math.round((lowCents + highCents) / 2));
+  if (Math.abs(highCents - lowCents) < 1500) return formatEuro(Math.round((lowCents + highCents) / 2));
   return `${formatEuro(lowCents)}–${formatEuro(highCents)}`;
 }
 

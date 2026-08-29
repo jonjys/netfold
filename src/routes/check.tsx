@@ -3,7 +3,18 @@ import { Extractor } from "@/components/extractor";
 import { Shell } from "@/components/shell";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/check")({ component: CheckPage });
+export const Route = createFileRoute("/check")({
+  head: () => ({
+    meta: [
+      { title: "Är Blocket-priset vettigt? | Netfold" },
+      {
+        name: "description",
+        content: "Klistra utropspriset. Se om det är högt jämfört med vad säljare faktiskt får kvar i kronor.",
+      },
+    ],
+  }),
+  component: CheckPage,
+});
 
 function CheckPage() {
   const { t } = useI18n();

@@ -9,11 +9,11 @@ export const Route = createFileRoute("/market")({
   loader: () => listMarket({ data: {} }),
   head: () => ({
     meta: [
-      { title: "Used gear take-home index | Netfold" },
+      { title: "Begagnat värde på Blocket — prisindex | Netfold" },
       {
         name: "description",
         content:
-          "What used phones, laptops and headphones actually put in your pocket after fees — not asking prices.",
+          "Vad ger iPhone, MacBook och hörlurar i fickan på Blocket? Netto i kronor efter avgifter — inte utropspris.",
       },
     ],
   }),

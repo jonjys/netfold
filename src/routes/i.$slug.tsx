@@ -13,8 +13,8 @@ export const Route = createFileRoute("/i/$slug")({
       return { meta: [{ title: "Netfold" }] };
     }
     const name = loaderData.catalog.name;
-    const title = `${name} — what you actually keep | Netfold`;
-    const description = `Take-home after fees for a used ${name}. Local, Marketplace, Vinted, eBay and instant — not the asking price.`;
+    const title = `${name} värde på Blocket — vad du får kvar | Netfold`;
+    const description = `Vad är ${name} värd på Blocket? Netto i kronor efter avgifter — inte utropspriset. Jämför Blocket, Marketplace, Vinted och eBay.`;
     return {
       meta: [
         { title },
@@ -42,7 +42,9 @@ function ItemPage() {
   return (
     <Shell>
       <p className="text-xs uppercase tracking-[0.2em] text-subtle">{catalog.category}</p>
-      <h1 className="mt-3 font-display text-4xl tracking-tight sm:text-5xl">{catalog.name}</h1>
+      <h1 className="mt-3 font-display text-4xl tracking-tight sm:text-5xl">
+        {catalog.name} — värde på Blocket
+      </h1>
       <p className="mt-4 text-sm text-muted">{t("itemLead")}</p>
       <p className="mt-6 font-display text-5xl tracking-tight">
         {formatEuroRange(teaser.rangeLowCents, teaser.rangeHighCents)}

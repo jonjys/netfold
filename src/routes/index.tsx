@@ -9,11 +9,16 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Netfold — see what you actually keep" },
+      { title: "Vad är min iPhone värd på Blocket? | Netfold" },
       {
         name: "description",
         content:
-          "Name or photo in. Net proceeds after fees, no-shows and instant buyers. Unlock the report when the number is worth it.",
+          "Räkna vad du faktiskt får kvar när du säljer på Blocket. iPhone, MacBook, hörlurar — netto i kronor efter avgifter, inte utropspriset. Rapport från 29 kr.",
+      },
+      {
+        name: "keywords",
+        content:
+          "iphone värde blocket, vad är min iphone värd, sälja iphone blocket, begagnad iphone pris, macbook värde",
       },
     ],
   }),

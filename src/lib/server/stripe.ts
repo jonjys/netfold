@@ -15,13 +15,7 @@ function stripeSecret(): string | undefined {
 }
 
 function priceId(sku: SkuId): string {
-  const envName =
-    sku === "report"
-      ? process.env.STRIPE_PRICE_REPORT
-      : sku === "extract"
-        ? process.env.STRIPE_PRICE_EXTRACT
-        : process.env.STRIPE_PRICE_PACK;
-  return envName?.trim() || STRIPE_PRICE_DEFAULT[sku];
+  return STRIPE_PRICE_DEFAULT[sku];
 }
 
 function publicOrigin(): string {
@@ -69,7 +63,7 @@ export async function fulfillOrder(input: {
       id, provider, provider_id, sku, amount_cents, currency, status, scan_token, wallet_token, user_id
     ) values (
       ${paymentId}, ${input.provider}, ${input.providerId}, ${input.sku},
-      ${input.amountCents}, ${"eur"}, ${"paid"}, ${input.scanToken ?? null}, ${input.walletToken ?? null},
+      ${input.amountCents}, ${"sek"}, ${"paid"}, ${input.scanToken ?? null}, ${input.walletToken ?? null},
       ${input.userId ?? null}
     )`;
   await sql`insert into ledger (id, entry_type, amount_cents, payment_id, scan_token, note)
@@ -166,6 +160,7 @@ export const startCheckout = createServerFn({ method: "POST" })
     if (data.scanToken) params.set("metadata[scan_token]", data.scanToken);
     params.set("allow_promotion_codes", "false");
     params.set("billing_address_collection", "auto");
+    params.set("locale", "sv");
 
     const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",

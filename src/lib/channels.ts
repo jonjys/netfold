@@ -22,19 +22,19 @@ export type Channel = {
 export const CHANNELS: Channel[] = [
   {
     id: "local",
-    name: "Local pickup",
-    short: "Local",
+    name: "Blocket",
+    short: "Blocket",
     feePct: 0,
     feeFixedCents: 0,
     sellerPaysShipCents: 0,
     priceHaircut: 0.04,
     daysToSold: 11,
     effort: "high",
-    note: "No fees. You take the no-shows and the chat.",
+    note: "Sveriges flöde. Inga avgifter. Du tar no-shows och chatten.",
   },
   {
     id: "facebook",
-    name: "Facebook / Blocket",
+    name: "Facebook Marketplace",
     short: "Marketplace",
     feePct: 0,
     feeFixedCents: 0,
@@ -42,31 +42,31 @@ export const CHANNELS: Channel[] = [
     priceHaircut: 0.07,
     daysToSold: 8,
     effort: "high",
-    note: "Fast local demand. Lowest net only if you actually close.",
+    note: "Snabb lokal efterfrågan. Nettot håller bara om du stänger affären.",
   },
   {
     id: "vinted",
     name: "Vinted",
     short: "Vinted",
     feePct: 0.05,
-    feeFixedCents: 70,
+    feeFixedCents: 770,
     sellerPaysShipCents: 0,
     priceHaircut: 0.06,
     daysToSold: 14,
     effort: "medium",
-    note: "Buyer-paid shipping on most lots. Mild seller fee.",
+    note: "Köparen betalar oftast frakt. Mild säljaravgift.",
   },
   {
     id: "ebay",
     name: "eBay",
     short: "eBay",
     feePct: 0.1325,
-    feeFixedCents: 35,
+    feeFixedCents: 385,
     sellerPaysShipCents: 0,
     priceHaircut: 0.02,
     daysToSold: 10,
     effort: "medium",
-    note: "Highest sold prices. Fees take a real bite.",
+    note: "Högre sålda priser. Avgifterna tar en rejäl tugga.",
   },
   {
     id: "instant",
@@ -78,7 +78,7 @@ export const CHANNELS: Channel[] = [
     priceHaircut: 0,
     daysToSold: 3,
     effort: "low",
-    note: "Sellpy / trade-in style. Cash this week, half the value.",
+    note: "Sellpy / inbyte. Pengar i veckan, ungefär halva värdet.",
   },
 ];
 
@@ -102,6 +102,6 @@ export function channelCopyKey(id?: string | null, short?: string | null) {
   if (s.includes("vinted")) return "chVinted";
   if (s.includes("ebay")) return "chEbay";
   if (s.includes("instant") || s.includes("direkt")) return "chInstant";
-  if (s.includes("market") || s.includes("blocket") || s.includes("facebook")) return "chFacebook";
+  if (s.includes("market") || s.includes("facebook")) return "chFacebook";
   return "chLocal";
 }

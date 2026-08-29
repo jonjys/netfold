@@ -31,6 +31,9 @@ export function LangProvider({ children }: { children: ReactNode }) {
         setLangState(stored);
         return;
       }
+      if (typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("sv")) {
+        setLangState("sv");
+      }
     } catch {
       /* ignore */
     }
