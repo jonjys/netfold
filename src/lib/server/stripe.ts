@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getSql } from "@/lib/db";
 import { cookieHasConsent } from "@/lib/consent";
 import { buildAllKits } from "@/lib/listings";
-import { SKUS, STRIPE_PRICE_DEFAULT, type SkuId } from "@/lib/skus";
+import { SKUS, STRIPE_PRICE_SEK, STRIPE_PRICE_USD, type SkuId } from "@/lib/skus";
 import { newId } from "@/lib/utils";
 import { loadScan, saveScan } from "./scan";
 import { recordPurchase } from "./accounts";
@@ -14,8 +14,12 @@ function stripeSecret(): string | undefined {
   return key || undefined;
 }
 
-function priceId(sku: SkuId): string {
-  return STRIPE_PRICE_DEFAULT[sku];
+function priceId(sku: SkuId, lang: "sv" | "en" = "sv"): string {
+  return lang === "en" ? STRIPE_PRICE_USD[sku] : STRIPE_PRICE_SEK[sku];
+}
+
+function asCurrency(value: unknown): "sek" | "usd" {
+  return String(value ?? "").toLowerCase() === "usd" ? "usd" : "sek";
 }
 
 function publicOrigin(): string {
@@ -52,6 +56,8 @@ export async function fulfillOrder(input: {
   scanToken?: string | null;
   walletToken?: string | null;
   userId?: string | null;
+  currency?: "sek" | "usd";
+  lang?: "sv" | "en";
 }): Promise<void> {
   const sql = await getSql();
   const existing = await sql<{ id: string }>`
@@ -63,7 +69,7 @@ export async function fulfillOrder(input: {
       id, provider, provider_id, sku, amount_cents, currency, status, scan_token, wallet_token, user_id
     ) values (
       ${paymentId}, ${input.provider}, ${input.providerId}, ${input.sku},
-      ${input.amountCents}, ${"sek"}, ${"paid"}, ${input.scanToken ?? null}, ${input.walletToken ?? null},
+      ${input.amountCents}, ${input.currency ?? "sek"}, ${"paid"}, ${input.scanToken ?? null}, ${input.walletToken ?? null},
       ${input.userId ?? null}
     )`;
   await sql`insert into ledger (id, entry_type, amount_cents, payment_id, scan_token, note)
@@ -96,7 +102,7 @@ export async function fulfillOrder(input: {
       full.unlocked = true;
       if (sku.includesKit) {
         full.hasKit = true;
-        full.kits = buildAllKits(full.items);
+        full.kits = buildAllKits(full.items, input.lang ?? (input.currency === "usd" ? "en" : "sv"));
         if (sku.credits > 0 && input.walletToken) {
           await sql`update wallets set credits = credits - 1
             where token = ${input.walletToken} and credits > 0`;
@@ -116,12 +122,14 @@ export const startCheckout = createServerFn({ method: "POST" })
       sku: z.enum(["report", "extract", "pack"]),
       wallet: z.string().min(16).max(80),
       scanToken: z.string().min(8).max(80).nullable(),
+      lang: z.enum(["sv", "en"]).optional(),
     }),
   )
   .handler(async ({ data }) => {
     if (!cookieHasConsent(getRequestHeader("cookie"))) {
       throw new Error("Cookies required");
     }
+    const lang = data.lang === "en" ? "en" : "sv";
     const sku = SKUS[data.sku];
     const secret = stripeSecret();
     const origin = publicOrigin();
@@ -135,9 +143,11 @@ export const startCheckout = createServerFn({ method: "POST" })
         provider: "preview",
         providerId: previewId,
         sku: data.sku,
-        amountCents: sku.amountCents,
+        amountCents: lang === "en" ? sku.usdCents : sku.amountCents,
         scanToken: data.scanToken,
         walletToken: data.wallet,
+        currency: lang === "en" ? "usd" : "sek",
+        lang,
       });
       const previewPath =
         `/paid?sku=${data.sku}` +
@@ -153,14 +163,15 @@ export const startCheckout = createServerFn({ method: "POST" })
     params.set("mode", "payment");
     params.set("success_url", `${success}&session_id={CHECKOUT_SESSION_ID}`);
     params.set("cancel_url", data.scanToken ? `${origin}/s/${data.scanToken}` : origin);
-    params.set("line_items[0][price]", priceId(data.sku));
+    params.set("line_items[0][price]", priceId(data.sku, lang));
     params.set("line_items[0][quantity]", "1");
     params.set("metadata[sku]", data.sku);
     params.set("metadata[wallet]", data.wallet);
+    params.set("metadata[lang]", lang);
     if (data.scanToken) params.set("metadata[scan_token]", data.scanToken);
     params.set("allow_promotion_codes", "false");
     params.set("billing_address_collection", "auto");
-    params.set("locale", "sv");
+    params.set("locale", lang === "en" ? "en" : "sv");
 
     const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
@@ -204,21 +215,26 @@ export const confirmSession = createServerFn({ method: "POST" })
       id: string;
       payment_status?: string;
       amount_total?: number;
-      metadata?: { sku?: string; wallet?: string; scan_token?: string; user_id?: string };
+      currency?: string;
+      metadata?: { sku?: string; wallet?: string; scan_token?: string; user_id?: string; lang?: string };
     };
     if (session.payment_status !== "paid" && session.payment_status !== "no_payment_required") {
       return { ok: false as const };
     }
     const sku = (session.metadata?.sku ?? data.sku) as SkuId | undefined;
     if (!sku || !(sku in SKUS)) return { ok: false as const };
+    const currency = asCurrency(session.currency);
+    const lang = session.metadata?.lang === "en" ? "en" : "sv";
     await fulfillOrder({
       provider: "stripe",
       providerId: session.id,
       sku,
-      amountCents: session.amount_total ?? SKUS[sku].amountCents,
+      amountCents: session.amount_total ?? (currency === "usd" ? SKUS[sku].usdCents : SKUS[sku].amountCents),
       scanToken: session.metadata?.scan_token ?? data.token,
       walletToken: session.metadata?.wallet,
       userId: session.metadata?.user_id ?? null,
+      currency,
+      lang,
     });
     return {
       ok: true as const,

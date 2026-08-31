@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Extractor } from "@/components/extractor";
 import { Shell } from "@/components/shell";
-import { formatEuro, formatEuroRange } from "@/lib/money";
+import { formatMoney, formatMoneyRange } from "@/lib/money";
 import { getPublicItem } from "@/lib/server/public";
 import { useI18n } from "@/lib/i18n";
 import { channelCopyKey } from "@/lib/channels";
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/i/$slug")({
 
 function ItemPage() {
   const data = Route.useLoaderData();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   if (!data.ok) {
     return (
       <Shell>
@@ -43,24 +43,24 @@ function ItemPage() {
     <Shell>
       <p className="text-xs uppercase tracking-[0.2em] text-subtle">{catalog.category}</p>
       <h1 className="mt-3 font-display text-4xl tracking-tight sm:text-5xl">
-        {catalog.name} — värde på Blocket
+        {catalog.name} — {t("itemH1Suffix")}
       </h1>
       <p className="mt-4 text-sm text-muted">{t("itemLead")}</p>
       <p className="mt-6 font-display text-5xl tracking-tight">
-        {formatEuroRange(teaser.rangeLowCents, teaser.rangeHighCents)}
+        {formatMoneyRange(teaser.rangeLowCents, teaser.rangeHighCents, lang)}
       </p>
       <p className="mt-3 text-sm text-muted">
         {t("itemBest")} {t(channelCopyKey(teaser.bestChannelId, teaser.bestChannelShort))}. {t("itemInstant")}{" "}
-        {formatEuro(teaser.trappedVsInstantCents)} {t("itemOnTable")}
+        {formatMoney(teaser.trappedVsInstantCents, lang)} {t("itemOnTable")}
       </p>
       <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
           <dt className="text-xs text-subtle">{t("likeNew")}</dt>
-          <dd className="mt-1 font-mono text-lg tabular-nums">{formatEuro(likeNewBest)}</dd>
+          <dd className="mt-1 font-mono text-lg tabular-nums">{formatMoney(likeNewBest, lang)}</dd>
         </div>
         <div className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
           <dt className="text-xs text-subtle">{t("fair")}</dt>
-          <dd className="mt-1 font-mono text-lg tabular-nums">{formatEuro(fairBest)}</dd>
+          <dd className="mt-1 font-mono text-lg tabular-nums">{formatMoney(fairBest, lang)}</dd>
         </div>
         <div className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
           <dt className="text-xs text-subtle">{t("brand")}</dt>

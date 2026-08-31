@@ -1,7 +1,7 @@
 export const BRAND = {
   name: "Netfold",
   domain: "www.netfold.site",
-  tagline: "Vad får du kvar på Blocket?",
+  tagline: "Färdig Blocket-annons. Exakt vad du får kvar.",
   oneLiner:
-    "Skriv prylen eller ta foto. Netfold räknar vad du faktiskt får kvar på Blocket efter avgifter — i kronor.",
+    "Skriv prylen eller ta foto. Netfold ger en färdig Blocket-annons och vad du faktiskt får kvar — i kronor.",
 } as const;

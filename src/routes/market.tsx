@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Shell } from "@/components/shell";
-import { formatEuroRange } from "@/lib/money";
+import { formatMoneyRange } from "@/lib/money";
 import { listMarket } from "@/lib/server/public";
 import { useI18n } from "@/lib/i18n";
 import { channelCopyKey } from "@/lib/channels";
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/market")({
 
 function MarketPage() {
   const rows = Route.useLoaderData();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <Shell>
       <p className="text-xs uppercase tracking-[0.2em] text-subtle">{t("marketKicker")}</p>
@@ -43,7 +43,7 @@ function MarketPage() {
                 </span>
               </span>
               <span className="font-mono text-sm tabular-nums text-muted">
-                {formatEuroRange(row.rangeLowCents, row.rangeHighCents)}
+                {formatMoneyRange(row.rangeLowCents, row.rangeHighCents, lang)}
               </span>
             </Link>
           </li>

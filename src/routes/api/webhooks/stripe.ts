@@ -38,14 +38,20 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
           const metadata = (obj.metadata ?? {}) as Record<string, string>;
           const sku = metadata.sku as SkuId | undefined;
           if (sku && sku in SKUS) {
+            const currency = String(obj.currency ?? "sek").toLowerCase() === "usd" ? "usd" : "sek";
+            const lang = metadata.lang === "en" ? "en" : "sv";
             await fulfillOrder({
               provider: "stripe",
               providerId: String(obj.id ?? event.id),
               sku,
-              amountCents: Number(obj.amount_total ?? SKUS[sku].amountCents),
+              amountCents: Number(
+                obj.amount_total ?? (currency === "usd" ? SKUS[sku].usdCents : SKUS[sku].amountCents),
+              ),
               scanToken: metadata.scan_token,
               walletToken: metadata.wallet,
               userId: metadata.user_id,
+              currency,
+              lang,
             });
           }
         }

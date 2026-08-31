@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { compressImage } from "@/lib/image";
+import { usdToSekOre } from "@/lib/money";
 import { type Condition } from "@/lib/pricing";
 import { createScan, searchItems } from "@/lib/server/scan";
 import { getWalletToken } from "@/lib/wallet-client";
@@ -32,7 +33,7 @@ export function Extractor({
   const [condition, setCondition] = useState<Condition>("good");
   const [asking, setAsking] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const condLabel: Record<Condition, CopyKey> = {
     like_new: "condLikeNew",
     good: "condGood",
@@ -55,8 +56,9 @@ export function Extractor({
   const askingCents = useMemo(() => {
     const n = Number(asking.replace(",", "."));
     if (!Number.isFinite(n) || n <= 0) return null;
-    return Math.round(n * 100);
-  }, [asking]);
+    const minor = Math.round(n * 100);
+    return lang === "en" ? usdToSekOre(minor) : minor;
+  }, [asking, lang]);
 
   async function runCatalog(catalogId: string) {
     setBusy(catalogId);

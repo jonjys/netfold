@@ -1,24 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Extractor } from "@/components/extractor";
 import { Shell } from "@/components/shell";
-import { featuredCatalog } from "@/lib/pricing";
-import { formatEuro } from "@/lib/money";
-import { priceItem } from "@/lib/pricing";
+import { catalogById } from "@/lib/catalog";
+import { featuredCatalog, priceItem } from "@/lib/pricing";
+import { formatMoney } from "@/lib/money";
+import { buildExtractKit } from "@/lib/listings";
 import { useI18n } from "@/lib/i18n";
+import { formatSkuPrice } from "@/lib/skus";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Vad är min iPhone värd på Blocket? | Netfold" },
+      { title: "Färdig Blocket-annons + vad du får kvar | Netfold" },
       {
         name: "description",
         content:
-          "Räkna vad du faktiskt får kvar när du säljer på Blocket. iPhone, MacBook, hörlurar — netto i kronor efter avgifter, inte utropspriset. Rapport från 29 kr.",
+          "Skriv prylen. Få en färdig Blocket-annons och exakt netto i kronor — iPhone, MacBook, hörlurar. Inte bara en prisuppgift. Från 29 kr.",
       },
       {
         name: "keywords",
         content:
-          "iphone värde blocket, vad är min iphone värd, sälja iphone blocket, begagnad iphone pris, macbook värde",
+          "iphone värde blocket, sälja iphone blocket, blocket annons, vad är min iphone värd, begagnad iphone pris, macbook värde",
       },
     ],
   }),
@@ -27,7 +29,12 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const featured = featuredCatalog(6);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const sampleCatalog = catalogById("iphone-16-128");
+  const sample = sampleCatalog
+    ? buildExtractKit(priceItem({ catalog: sampleCatalog, condition: "good" }), lang)
+    : null;
+  const sampleListing = sample?.listings[0];
 
   return (
     <Shell>
@@ -55,6 +62,21 @@ function Home() {
         ))}
       </section>
 
+      {sampleListing ? (
+        <section className="mt-12">
+          <p className="text-xs uppercase tracking-[0.2em] text-subtle">{t("sampleKicker")}</p>
+          <h2 className="mt-2 font-display text-2xl tracking-tight">{t("sampleLead")}</h2>
+          <article className="mt-4 rounded-2xl bg-surface p-4 shadow-[var(--shadow-border)] sm:p-5">
+            <p className="font-display text-xl tracking-tight">{sampleListing.title}</p>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">{sampleListing.body}</p>
+            <p className="mt-4 text-xs text-subtle">{sample?.acceptLine}</p>
+          </article>
+          <p className="mt-3 text-sm text-muted">
+            {t("sampleCta")} · {formatSkuPrice("report", lang)}
+          </p>
+        </section>
+      ) : null}
+
       <section className="mt-12">
         <div className="flex items-end justify-between gap-3">
           <h2 className="font-display text-2xl tracking-tight">{t("priceIndex")}</h2>
@@ -74,7 +96,7 @@ function Home() {
                 >
                   <span className="text-sm">{item.name}</span>
                   <span className="font-mono text-sm tabular-nums text-muted">
-                    {formatEuro(priced.bestTakeHomeCents)}
+                    {formatMoney(priced.bestTakeHomeCents, lang)}
                   </span>
                 </Link>
               </li>

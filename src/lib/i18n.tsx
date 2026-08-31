@@ -16,13 +16,13 @@ const LangContext = createContext<{
   setLang: (lang: Lang) => void;
   t: (key: CopyKey) => string;
 }>({
-  lang: "en",
+  lang: "sv",
   setLang: () => undefined,
-  t: (key) => COPY.en[key],
+  t: (key) => COPY.sv[key],
 });
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>("sv");
 
   useEffect(() => {
     try {
