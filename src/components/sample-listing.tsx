@@ -33,7 +33,7 @@ export function SampleListing({
             alt={priced.name}
             width={1024}
             height={768}
-            className="absolute inset-0 size-full object-cover object-[center_42%]"
+            className="absolute inset-0 size-full object-cover object-[center_32%]"
           />
         </div>
         <img
