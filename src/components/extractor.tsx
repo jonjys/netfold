@@ -161,7 +161,7 @@ export function Extractor({
             onKeyDown={(e) => {
               if (e.key === "Enter") void runSearch();
             }}
-            placeholder="iPhone 13, Sony XM5, PS5…"
+            placeholder={lang === "sv" ? "iPhone 13, Sony XM5, PS5…" : "iPhone 13, Sony XM5, PS5…"}
             className="pl-9"
             aria-label={t("priceIt")}
           />

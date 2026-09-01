@@ -2,12 +2,13 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { BRAND } from "@/lib/brand";
 import { useI18n } from "@/lib/i18n";
+import { formatSkuPrice } from "@/lib/skus";
 
 export function Shell({ children }: { children: ReactNode }) {
   const { lang, setLang, t } = useI18n();
   return (
     <div className="min-h-dvh bg-bg text-fg">
-      <header className="sticky top-0 z-20 border-b border-border bg-bg/85 backdrop-blur-md">
+      <header className="sticky top-0 z-20 border-b border-border bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
           <Link to="/" className="font-display text-lg tracking-tight text-fg">
             {BRAND.name}
@@ -25,7 +26,7 @@ export function Shell({ children }: { children: ReactNode }) {
             >
               {t("navCheck")}
             </Link>
-            <div className="ml-1 flex rounded-md bg-surface-2 p-0.5 text-xs font-medium">
+            <div className="flex rounded-md bg-surface-2 p-0.5 text-xs font-medium">
               <button
                 type="button"
                 onClick={() => setLang("en")}
@@ -41,10 +42,16 @@ export function Shell({ children }: { children: ReactNode }) {
                 SV
               </button>
             </div>
+            <a
+              href="/#go"
+              className="ml-1 hidden h-9 items-center rounded-md bg-accent px-3 text-xs font-medium text-accent-fg sm:inline-flex"
+            >
+              {t("navCta")} · {formatSkuPrice("report", lang)}
+            </a>
           </nav>
         </div>
       </header>
-      <div className="mx-auto max-w-5xl px-4 pb-16 pt-6">{children}</div>
+      <div className="mx-auto max-w-5xl px-4 pb-20 pt-5">{children}</div>
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-8 text-xs text-subtle">
           <p>{t("footerLine")}</p>
@@ -60,9 +67,6 @@ export function Shell({ children }: { children: ReactNode }) {
             </Link>
             <Link to="/contact" className="hover:text-fg">
               {t("contact")}
-            </Link>
-            <Link to="/ops" className="hover:text-fg">
-              {t("machine")}
             </Link>
           </div>
         </div>

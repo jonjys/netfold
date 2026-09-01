@@ -181,3 +181,14 @@ export function matchIdentified(input: {
   const hits = searchCatalog(q, 3);
   return hits[0];
 }
+
+const IMAGES: Record<string, string> = {
+  "iphone-14-pro-max": "/phones/iphone-14-pro-max.jpg",
+  "sony-xm5": "/phones/sony-xm5.jpg",
+  "ps5-slim": "/phones/ps5-slim.jpg",
+};
+
+export function catalogImage(id: string): string | undefined {
+  return IMAGES[id];
+}
+

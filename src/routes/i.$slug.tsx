@@ -5,6 +5,7 @@ import { VsCard } from "@/components/vs-card";
 import { formatMoney, formatMoneyRange } from "@/lib/money";
 import { getPublicItem } from "@/lib/server/public";
 import { useI18n } from "@/lib/i18n";
+import { catalogImage } from "@/lib/catalog";
 import { channelCopyKey } from "@/lib/channels";
 
 export const Route = createFileRoute("/i/$slug")({
@@ -45,11 +46,16 @@ function ItemPage() {
   const swappieCents = good.quotes.find((q) => q.channelId === "instant")?.takeHomeCents ?? 0;
   return (
     <Shell>
-      <p className="text-xs uppercase tracking-[0.2em] text-subtle">{catalog.category}</p>
-      <h1 className="mt-3 font-display text-4xl tracking-tight sm:text-5xl">
-        {catalog.name} — {t("itemH1Suffix")}
-      </h1>
-      <p className="mt-4 text-sm text-muted">{t("itemLead")}</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-subtle">{catalog.brand}</p>
+      <h1 className="mt-3 font-display text-4xl tracking-tight sm:text-5xl">{catalog.name}</h1>
+      <p className="mt-3 text-sm text-muted">{t("itemLead")}</p>
+      {catalogImage(catalog.id) ? (
+        <img
+          src={catalogImage(catalog.id)}
+          alt={catalog.name}
+          className="mt-6 aspect-[4/3] w-full rounded-3xl object-cover shadow-[var(--shadow-lift)] sm:max-w-lg"
+        />
+      ) : null}
       <VsCard blocketCents={blocketCents} swappieCents={swappieCents} />
       <p className="mt-6 font-display text-5xl tracking-tight">
         {formatMoneyRange(teaser.rangeLowCents, teaser.rangeHighCents, lang)}

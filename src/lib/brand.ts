@@ -1,7 +1,8 @@
 export const BRAND = {
   name: "Netfold",
   domain: "www.netfold.site",
+  url: "https://www.netfold.site",
   tagline: "Såld innan helgen. Annars Swappie.",
   oneLiner:
-    "Inte en prisjämförelse. En 72-timmars säljplan för Blocket — fast pris, döda bud, sen Swappie.",
+    "72-timmars Blocket-annons: fast pris, döda bud, sen Swappie. Inte en prisjämförelse.",
 } as const;
