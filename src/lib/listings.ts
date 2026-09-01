@@ -70,11 +70,17 @@ export function formatDeadline(at: Date, lang: Lang): string {
   }).format(at);
 }
 
-export function formatRemaining(at: Date, lang: Lang, now = new Date()): string {
+export function remainingParts(at: Date, now = new Date()): { h: number; m: number; s: number } {
   const ms = Math.max(0, at.getTime() - now.getTime());
-  const h = Math.floor(ms / 3_600_000);
-  const m = Math.floor((ms % 3_600_000) / 60_000);
-  const s = Math.floor((ms % 60_000) / 1000);
+  return {
+    h: Math.floor(ms / 3_600_000),
+    m: Math.floor((ms % 3_600_000) / 60_000),
+    s: Math.floor((ms % 60_000) / 1000),
+  };
+}
+
+export function formatRemaining(at: Date, lang: Lang, now = new Date()): string {
+  const { h, m, s } = remainingParts(at, now);
   const mm = String(m).padStart(2, "0");
   const ss = String(s).padStart(2, "0");
   return lang === "en" ? `${h}h ${mm}m ${ss}s` : `${h}t ${mm}m ${ss}s`;

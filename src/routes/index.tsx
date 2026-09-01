@@ -1,19 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Extractor } from "@/components/extractor";
 import { Shell } from "@/components/shell";
-import { VsCard } from "@/components/vs-card";
 import { DeadlineClock } from "@/components/deadline-clock";
+import { Button } from "@/components/ui/button";
 import { catalogById } from "@/lib/catalog";
 import { priceItem } from "@/lib/pricing";
 import { formatMoney } from "@/lib/money";
-import {
-  buildExtractKit,
-  dayAnchor,
-  DEMO_PROOF_TOKEN,
-  proofHref,
-  sellBy,
-} from "@/lib/listings";
-import { BRAND } from "@/lib/brand";
+import { dayAnchor, DEMO_PROOF_TOKEN, sellBy } from "@/lib/listings";
 import { useI18n } from "@/lib/i18n";
 import { formatSkuPrice } from "@/lib/skus";
 
@@ -32,13 +25,7 @@ export const Route = createFileRoute("/")({
       { title: "Såld innan helgen — 72-timmarsannons | Netfold" },
       {
         name: "description",
-        content:
-          "Inte PriceRunner. En färdig Blocket-annons med fast pris, köparbevis och ett klockslag då du tar Swappie. 29 kr.",
-      },
-      {
-        name: "keywords",
-        content:
-          "sälja iphone blocket, 72 timmar blocket, köparbevis, swappie vs blocket, iPhone 14 Pro Max blocket",
+        content: "Färdig Blocket-annons. Fast pris, köparbevis, 72 timmar. Sen Swappie. 29 kr.",
       },
     ],
   }),
@@ -47,85 +34,63 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const { t, lang } = useI18n();
-  const heroCatalog = catalogById("iphone-14-pro-max");
-  const hero = heroCatalog ? priceItem({ catalog: heroCatalog, condition: "good" }) : null;
-  const heroBlocket = hero?.quotes.find((q) => q.channelId === "local")?.takeHomeCents ?? 0;
-  const heroSwappie = hero?.quotes.find((q) => q.channelId === "instant")?.takeHomeCents ?? 0;
-  const sampleCatalog = catalogById("iphone-14-pro-max");
   const sampleNow = dayAnchor();
-  const sample = sampleCatalog
-    ? buildExtractKit(priceItem({ catalog: sampleCatalog, condition: "good" }), lang, {
-        proofUrl: proofHref(DEMO_PROOF_TOKEN, `https://${BRAND.domain}`),
-        now: sampleNow,
-      })
-    : null;
-  const sampleListing = sample?.listings[0];
+  const catalog = catalogById("iphone-14-pro-max");
+  const priced = catalog ? priceItem({ catalog, condition: "good" }) : null;
   const phones = HOME_PHONES.map((id) => catalogById(id)).filter(
     (row): row is NonNullable<typeof row> => Boolean(row),
   );
 
   return (
     <Shell>
-      <section className="pb-2 pt-4 sm:pt-10">
-        <p className="text-xs uppercase tracking-[0.2em] text-subtle">{t("homeKicker")}</p>
-        <h1 className="mt-3 max-w-2xl font-display text-[2.6rem] leading-[0.95] tracking-tight sm:text-6xl">
-          {t("homeTitle")}
-        </h1>
-        <p className="mt-4 max-w-lg text-base text-muted">{t("homeLead")}</p>
-      </section>
+      <section className="pt-4 sm:pt-8">
+        <p className="text-xs uppercase tracking-[0.22em] text-subtle">{t("homeKicker")}</p>
+        <div className="mt-3">
+          <DeadlineClock at={sellBy(sampleNow)} size="hero" />
+        </div>
 
-      {sampleListing ? (
-        <section className="mt-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-subtle">{t("sampleKicker")}</p>
-          <h2 className="mt-2 font-display text-2xl tracking-tight">{t("sampleLead")}</h2>
-          <article className="mt-4 rounded-2xl bg-surface p-4 shadow-[var(--shadow-border)] sm:p-5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs uppercase tracking-[0.18em] text-subtle">{t("adKicker")}</p>
-              <DeadlineClock at={sellBy(sampleNow)} />
+        {priced ? (
+          <article className="mt-6 overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-lift)] sm:grid sm:grid-cols-2">
+            <img
+              src="/phones/iphone-14-pro-max.jpg"
+              alt={priced.name}
+              width={900}
+              height={1200}
+              className="aspect-[3/4] w-full object-cover outline outline-1 -outline-offset-1 outline-fg/10 sm:h-full"
+            />
+            <div className="flex flex-col justify-end p-4 sm:p-6">
+              <h1 className="font-display text-3xl leading-[1.05] tracking-tight">
+                {priced.name}
+              </h1>
+              <p className="mt-3 font-display text-4xl tracking-tight sm:text-5xl">
+                {formatMoney(priced.acceptCents, lang)}
+              </p>
+              <p className="mt-2 font-mono text-sm tabular-nums text-ok">
+                +{formatMoney(priced.trappedVsInstantCents, lang)} {t("vsHeadline")}
+              </p>
+              <p className="mt-2 text-sm text-muted">
+                {lang === "sv" ? "ej bud · hämtas i veckan" : "firm · pickup this week"}
+              </p>
+              <Button asChild size="lg" className="mt-5 w-full">
+                <a href="#go">
+                  {t("sampleCta")} · {formatSkuPrice("report", lang)}
+                </a>
+              </Button>
+              <Link
+                to="/b/$token"
+                params={{ token: DEMO_PROOF_TOKEN }}
+                className="mt-3 flex h-11 items-center justify-center text-sm text-muted hover:text-fg"
+              >
+                {t("sampleProof")}
+              </Link>
             </div>
-            <p className="mt-3 font-display text-xl tracking-tight">{sampleListing.title}</p>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">{sampleListing.body}</p>
-            <p className="mt-4 text-xs text-subtle">{sample?.lowballReply}</p>
-            <Link
-              to="/b/$token"
-              params={{ token: DEMO_PROOF_TOKEN }}
-              className="mt-4 inline-flex h-11 items-center text-sm text-muted hover:text-fg"
-            >
-              {t("sampleProof")}
-            </Link>
           </article>
-          <p className="mt-3 text-sm text-muted">
-            {t("sampleCta")} · {formatSkuPrice("report", lang)}
-          </p>
-        </section>
-      ) : null}
-
-      <Extractor />
-
-      <section className="mt-10 grid gap-3 sm:grid-cols-3">
-        {[
-          { n: "01", t: t("step1t"), d: t("step1d") },
-          { n: "02", t: t("step2t"), d: t("step2d") },
-          { n: "03", t: t("step3t"), d: t("step3d") },
-        ].map((s) => (
-          <article key={s.n} className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
-            <p className="font-mono text-xs text-subtle">{s.n}</p>
-            <h2 className="mt-2 font-display text-xl tracking-tight">{s.t}</h2>
-            <p className="mt-1 text-sm text-muted">{s.d}</p>
-          </article>
-        ))}
+        ) : null}
       </section>
 
-      {hero ? (
-        <section className="mt-12">
-          <VsCard blocketCents={heroBlocket} swappieCents={heroSwappie} />
-          <p className="mt-3 text-xs text-subtle">
-            <Link to="/swappie-vs-blocket" className="hover:text-fg">
-              iPhone 13 / 14 / 15 Pro Max — Swappie mot Blocket
-            </Link>
-          </p>
-        </section>
-      ) : null}
+      <section id="go" className="mt-8 scroll-mt-24">
+        <Extractor compact />
+      </section>
 
       <section className="mt-12">
         <div className="flex items-end justify-between gap-3">
@@ -136,28 +101,17 @@ function Home() {
         </div>
         <ul className="mt-4 divide-y divide-border rounded-2xl bg-surface shadow-[var(--shadow-border)]">
           {phones.map((item) => {
-            const priced = priceItem({ catalog: item, condition: "good" });
-            const blocket =
-              priced.quotes.find((q) => q.channelId === "local")?.takeHomeCents ??
-              priced.bestTakeHomeCents;
-            const swappie =
-              priced.quotes.find((q) => q.channelId === "instant")?.takeHomeCents ?? 0;
+            const row = priceItem({ catalog: item, condition: "good" });
             return (
               <li key={item.id}>
                 <Link
                   to="/i/$slug"
                   params={{ slug: item.slug }}
-                  className="flex items-center justify-between gap-3 px-4 py-3.5"
+                  className="flex min-h-14 items-center justify-between gap-3 px-4 py-3"
                 >
-                  <span>
-                    <span className="block text-sm">{item.name}</span>
-                    <span className="text-xs text-subtle">
-                      {t("vsSwappie")} {formatMoney(swappie, lang)} · {t("vsBlocket")}{" "}
-                      {formatMoney(blocket, lang)}
-                    </span>
-                  </span>
+                  <span className="text-sm">{item.name}</span>
                   <span className="font-mono text-sm tabular-nums text-ok">
-                    +{formatMoney(priced.trappedVsInstantCents, lang)}
+                    +{formatMoney(row.trappedVsInstantCents, lang)}
                   </span>
                 </Link>
               </li>

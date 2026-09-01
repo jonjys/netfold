@@ -22,8 +22,10 @@ const QUICK = [
 
 export function Extractor({
   defaultMode = "sell",
+  compact = false,
 }: {
   defaultMode?: "sell" | "buy";
+  compact?: boolean;
 }) {
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -127,28 +129,30 @@ export function Extractor({
 
   return (
     <section className="rounded-2xl bg-surface p-3 shadow-[var(--shadow-border)] sm:p-4">
-      <div className="flex rounded-xl bg-bg p-1">
-        {(
-          [
-            ["sell", t("sellThis")],
-            ["buy", t("checkAsk")],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setMode(id)}
-            className={cn(
-              "h-10 flex-1 rounded-lg text-sm font-medium transition-colors duration-150",
-              mode === id ? "bg-surface-2 text-fg" : "text-muted",
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      {!compact ? (
+        <div className="flex rounded-xl bg-bg p-1">
+          {(
+            [
+              ["sell", t("sellThis")],
+              ["buy", t("checkAsk")],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setMode(id)}
+              className={cn(
+                "h-10 flex-1 rounded-lg text-sm font-medium transition-colors duration-150",
+                mode === id ? "bg-surface-2 text-fg" : "text-muted",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
-      <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
+      <div className={cn("grid gap-3 sm:grid-cols-[1fr_auto]", compact ? "" : "mt-3")}>
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
           <Input
