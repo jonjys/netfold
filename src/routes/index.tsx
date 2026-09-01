@@ -2,10 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Extractor } from "@/components/extractor";
 import { Shell } from "@/components/shell";
 import { VsCard } from "@/components/vs-card";
+import { DeadlineClock } from "@/components/deadline-clock";
 import { catalogById } from "@/lib/catalog";
 import { priceItem } from "@/lib/pricing";
 import { formatMoney } from "@/lib/money";
-import { buildExtractKit } from "@/lib/listings";
+import {
+  buildExtractKit,
+  dayAnchor,
+  DEMO_PROOF_TOKEN,
+  proofHref,
+  sellBy,
+} from "@/lib/listings";
+import { BRAND } from "@/lib/brand";
 import { useI18n } from "@/lib/i18n";
 import { formatSkuPrice } from "@/lib/skus";
 
@@ -21,16 +29,16 @@ const HOME_PHONES = [
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Swappie eller Blocket? Vad du faktiskt får kvar | Netfold" },
+      { title: "Såld innan helgen — 72-timmarsannons | Netfold" },
       {
         name: "description",
         content:
-          "Swappie ger ~1 300 kr för en iPhone 14 Pro Max. På Blocket ~4 500 kr. Netfold skriver Blocket-annonsen. 29 kr.",
+          "Inte PriceRunner. En färdig Blocket-annons med fast pris, köparbevis och ett klockslag då du tar Swappie. 29 kr.",
       },
       {
         name: "keywords",
         content:
-          "swappie vs blocket, sälj iphone swappie, vad ger swappie, iphone värde blocket, sälja iphone blocket, iPhone 14 Pro Max blocket",
+          "sälja iphone blocket, 72 timmar blocket, köparbevis, swappie vs blocket, iPhone 14 Pro Max blocket",
       },
     ],
   }),
@@ -43,9 +51,13 @@ function Home() {
   const hero = heroCatalog ? priceItem({ catalog: heroCatalog, condition: "good" }) : null;
   const heroBlocket = hero?.quotes.find((q) => q.channelId === "local")?.takeHomeCents ?? 0;
   const heroSwappie = hero?.quotes.find((q) => q.channelId === "instant")?.takeHomeCents ?? 0;
-  const sampleCatalog = catalogById("iphone-16-128");
+  const sampleCatalog = catalogById("iphone-14-pro-max");
+  const sampleNow = dayAnchor();
   const sample = sampleCatalog
-    ? buildExtractKit(priceItem({ catalog: sampleCatalog, condition: "good" }), lang)
+    ? buildExtractKit(priceItem({ catalog: sampleCatalog, condition: "good" }), lang, {
+        proofUrl: proofHref(DEMO_PROOF_TOKEN, `https://${BRAND.domain}`),
+        now: sampleNow,
+      })
     : null;
   const sampleListing = sample?.listings[0];
   const phones = HOME_PHONES.map((id) => catalogById(id)).filter(
@@ -54,19 +66,39 @@ function Home() {
 
   return (
     <Shell>
-      <section className="pb-4 pt-4 sm:pt-10">
+      <section className="pb-2 pt-4 sm:pt-10">
         <p className="text-xs uppercase tracking-[0.2em] text-subtle">{t("homeKicker")}</p>
         <h1 className="mt-3 max-w-2xl font-display text-[2.6rem] leading-[0.95] tracking-tight sm:text-6xl">
           {t("homeTitle")}
         </h1>
         <p className="mt-4 max-w-lg text-base text-muted">{t("homeLead")}</p>
-        {hero ? <VsCard blocketCents={heroBlocket} swappieCents={heroSwappie} /> : null}
-        <p className="mt-3 text-xs text-subtle">
-          <Link to="/swappie-vs-blocket" className="hover:text-fg">
-            iPhone 13 / 14 / 15 Pro Max — Swappie mot Blocket
-          </Link>
-        </p>
       </section>
+
+      {sampleListing ? (
+        <section className="mt-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-subtle">{t("sampleKicker")}</p>
+          <h2 className="mt-2 font-display text-2xl tracking-tight">{t("sampleLead")}</h2>
+          <article className="mt-4 rounded-2xl bg-surface p-4 shadow-[var(--shadow-border)] sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs uppercase tracking-[0.18em] text-subtle">{t("adKicker")}</p>
+              <DeadlineClock at={sellBy(sampleNow)} />
+            </div>
+            <p className="mt-3 font-display text-xl tracking-tight">{sampleListing.title}</p>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">{sampleListing.body}</p>
+            <p className="mt-4 text-xs text-subtle">{sample?.lowballReply}</p>
+            <Link
+              to="/b/$token"
+              params={{ token: DEMO_PROOF_TOKEN }}
+              className="mt-4 inline-flex h-11 items-center text-sm text-muted hover:text-fg"
+            >
+              {t("sampleProof")}
+            </Link>
+          </article>
+          <p className="mt-3 text-sm text-muted">
+            {t("sampleCta")} · {formatSkuPrice("report", lang)}
+          </p>
+        </section>
+      ) : null}
 
       <Extractor />
 
@@ -84,17 +116,13 @@ function Home() {
         ))}
       </section>
 
-      {sampleListing ? (
+      {hero ? (
         <section className="mt-12">
-          <p className="text-xs uppercase tracking-[0.2em] text-subtle">{t("sampleKicker")}</p>
-          <h2 className="mt-2 font-display text-2xl tracking-tight">{t("sampleLead")}</h2>
-          <article className="mt-4 rounded-2xl bg-surface p-4 shadow-[var(--shadow-border)] sm:p-5">
-            <p className="font-display text-xl tracking-tight">{sampleListing.title}</p>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">{sampleListing.body}</p>
-            <p className="mt-4 text-xs text-subtle">{sample?.acceptLine}</p>
-          </article>
-          <p className="mt-3 text-sm text-muted">
-            {t("sampleCta")} · {formatSkuPrice("report", lang)}
+          <VsCard blocketCents={heroBlocket} swappieCents={heroSwappie} />
+          <p className="mt-3 text-xs text-subtle">
+            <Link to="/swappie-vs-blocket" className="hover:text-fg">
+              iPhone 13 / 14 / 15 Pro Max — Swappie mot Blocket
+            </Link>
           </p>
         </section>
       ) : null}

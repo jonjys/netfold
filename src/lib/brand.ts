@@ -1,7 +1,7 @@
 export const BRAND = {
   name: "Netfold",
   domain: "www.netfold.site",
-  tagline: "Swappie ger 1 300 kr. Blocket ger 4 500.",
+  tagline: "Såld innan helgen. Annars Swappie.",
   oneLiner:
-    "Samma iPhone. Swappie betalar idag. Blocket betalar mer. 29 kr är annonsen som tar skillnaden.",
+    "Inte en prisjämförelse. En 72-timmars säljplan för Blocket — fast pris, döda bud, sen Swappie.",
 } as const;

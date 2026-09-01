@@ -14,11 +14,18 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import type { CopyKey, Lang } from "@/lib/copy";
 import { channelCopyKey } from "@/lib/channels";
-import { buildAllKits, lockedAdPreview } from "@/lib/listings";
+import { BRAND } from "@/lib/brand";
+import { buildAllKits, lockedAdPreview, proofHref, sellBy } from "@/lib/listings";
 import { VsCard } from "@/components/vs-card";
+import { DeadlineClock } from "@/components/deadline-clock";
 
 function isFull(view: ScanTeaser | ScanFull): view is ScanFull {
   return "items" in view && Array.isArray((view as ScanFull).items);
+}
+
+function originNow(): string {
+  if (typeof window === "undefined") return `https://${BRAND.domain}`;
+  return window.location.origin;
 }
 
 export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
@@ -28,6 +35,9 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
   const { t, lang } = useI18n();
   const skuName = { report: t("skuReport"), extract: t("skuExtract"), pack: t("skuPack") };
   const bestChannel = t(channelCopyKey(view.bestChannelId, view.bestChannelShort));
+  const sellMode = view.mode !== "buy";
+  const deadline = sellBy(new Date(view.createdAt));
+  const swappieCents = Math.max(0, view.bestTakeHomeCents - view.trappedVsInstantCents);
 
   async function pay(sku: "report" | "extract" | "pack") {
     if (!hasAcceptedConsent()) {
@@ -60,36 +70,44 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
     }
   }
 
-  const headline = unlocked
-    ? formatMoney(view.bestTakeHomeCents, lang)
-    : view.trappedVsInstantCents > 800
-      ? `${formatMoney(view.trappedVsInstantCents, lang)} ${t("vsHeadline")}`
-      : formatMoneyRange(view.rangeLowCents, view.rangeHighCents, lang);
-  const swappieCents = Math.max(0, view.bestTakeHomeCents - view.trappedVsInstantCents);
+  const headline = sellMode
+    ? (view.names[0] ?? "Item")
+    : unlocked
+      ? formatMoney(view.bestTakeHomeCents, lang)
+      : view.trappedVsInstantCents > 800
+        ? `${formatMoney(view.trappedVsInstantCents, lang)} ${t("vsHeadline")}`
+        : formatMoneyRange(view.rangeLowCents, view.rangeHighCents, lang);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
       <div>
         <p className="text-xs uppercase tracking-[0.18em] text-subtle">
-          {view.mode === "buy" ? t("modeBuy") : t("modeSell")}
+          {sellMode ? t("homeKicker") : view.mode === "buy" ? t("modeBuy") : t("modeSell")}
         </p>
-        <h1 className="mt-2 font-display text-5xl leading-none tracking-tight sm:text-6xl">
+        <h1 className="mt-2 font-display text-4xl leading-none tracking-tight sm:text-5xl">
           {headline}
         </h1>
-        <p className="mt-4 max-w-md text-sm text-muted">
-          {view.itemCount === 1 ? view.names[0] : `${view.itemCount} ${t("items")}`} · {t("bestNet")}{" "}
-          {bestChannel}
-        </p>
-        <VsCard blocketCents={view.bestTakeHomeCents} swappieCents={swappieCents} />
+        {sellMode ? (
+          <p className="mt-3 text-sm text-muted">
+            {t("deadlineKicker")} <DeadlineClock at={deadline} />
+          </p>
+        ) : (
+          <p className="mt-4 max-w-md text-sm text-muted">
+            {view.itemCount === 1 ? view.names[0] : `${view.itemCount} ${t("items")}`} · {t("bestNet")}{" "}
+            {bestChannel}
+          </p>
+        )}
 
         {unlocked ? (
           <>
             <ListingHero full={view} lang={lang} />
+            <VsCard blocketCents={view.bestTakeHomeCents} swappieCents={swappieCents} />
             <ItemStack full={view} />
           </>
         ) : (
           <>
             <LockedAd names={view.names} lang={lang} />
+            <VsCard blocketCents={view.bestTakeHomeCents} swappieCents={swappieCents} />
             <ul className="mt-6 divide-y divide-border rounded-2xl bg-surface px-4 shadow-[var(--shadow-border)]">
               {view.names.map((name) => (
                 <li key={name} className="flex h-14 items-center justify-between text-sm">
@@ -110,11 +128,7 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
             <p className="font-display text-2xl tracking-tight">{t("unlockNet")}</p>
             <p className="mt-2 text-sm text-muted">{t("unlockLead")}</p>
             <div className="mt-5 grid gap-2">
-              <Button
-                size="lg"
-                disabled={Boolean(busy)}
-                onClick={() => void pay("report")}
-              >
+              <Button size="lg" disabled={Boolean(busy)} onClick={() => void pay("report")}>
                 {skuName.report} · {formatSkuPrice("report", lang)}
               </Button>
               <Button
@@ -125,11 +139,7 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
               >
                 {skuName.extract} · {formatSkuPrice("extract", lang)}
               </Button>
-              <Button
-                variant="ghost"
-                disabled={Boolean(busy)}
-                onClick={() => void pay("pack")}
-              >
+              <Button variant="ghost" disabled={Boolean(busy)} onClick={() => void pay("pack")}>
                 {skuName.pack} · {formatSkuPrice("pack", lang)}
               </Button>
             </div>
@@ -163,16 +173,20 @@ function LockedAd({ names, lang }: { names: string[]; lang: Lang }) {
 function ListingHero({ full, lang }: { full: ScanFull; lang: Lang }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
+  const proofUrl = proofHref(full.token, originNow());
   const kit = useMemo(
-    () => (full.items?.length ? buildAllKits(full.items, lang)[0] : full.kits?.[0]),
-    [full, lang],
+    () =>
+      full.items?.length
+        ? buildAllKits(full.items, lang, { proofUrl, now: new Date(full.createdAt) })[0]
+        : full.kits?.[0],
+    [full.items, full.kits, full.createdAt, lang, proofUrl],
   );
   const listing = kit?.listings[0];
-  if (!listing) return null;
-  const ad = listing;
+  if (!listing || !kit) return null;
+  const paste = `${listing.title}\n\n${listing.body}`;
 
   async function copy() {
-    await navigator.clipboard.writeText(`${ad.title}\n\n${ad.body}`);
+    await navigator.clipboard.writeText(paste);
     setCopied(true);
     toast.success(t("copied"));
   }
@@ -180,12 +194,24 @@ function ListingHero({ full, lang }: { full: ScanFull; lang: Lang }) {
   return (
     <article className="mt-8 rounded-2xl bg-surface p-4 shadow-[var(--shadow-border)] sm:p-5">
       <p className="text-xs uppercase tracking-[0.18em] text-subtle">{t("adKicker")}</p>
+      {kit.deadlineLabel ? (
+        <p className="mt-2 text-xs text-ok">
+          {t("deadlineKicker")} {kit.deadlineLabel}
+        </p>
+      ) : null}
       <h2 className="mt-2 font-display text-2xl tracking-tight">{listing.title}</h2>
       <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-muted">{listing.body}</p>
-      <Button className="mt-4" onClick={() => void copy()}>
-        {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-        {t("copyListing")}
-      </Button>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button onClick={() => void copy()}>
+          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+          {t("copyListing")}
+        </Button>
+        <Button variant="secondary" asChild>
+          <Link to="/b/$token" params={{ token: full.token }}>
+            {t("sampleProof")}
+          </Link>
+        </Button>
+      </div>
     </article>
   );
 }
@@ -235,9 +261,7 @@ function ItemStack({ full }: { full: ScanFull }) {
                   {q.rank}. {t(channelCopyKey(q.channelId, q.short))}
                   <span className="ml-2 text-xs text-subtle">{q.daysToSold}d</span>
                 </span>
-                <span className="font-mono tabular-nums">
-                  {formatMoney(q.takeHomeCents, lang)}
-                </span>
+                <span className="font-mono tabular-nums">{formatMoney(q.takeHomeCents, lang)}</span>
               </li>
             ))}
           </ol>
@@ -259,11 +283,13 @@ function Stat({ label, value }: { label: string; value: string }) {
 function UnlockedPanel({ full }: { full: ScanFull }) {
   const [copied, setCopied] = useState<string | null>(null);
   const { t, lang } = useI18n();
-  const kits = full.items?.length ? buildAllKits(full.items, lang) : (full.kits ?? []);
-  const shareUrl =
-    typeof window === "undefined"
-      ? `/s/${full.token}`
-      : `${window.location.origin}/s/${full.token}`;
+  const origin = originNow();
+  const proofUrl = proofHref(full.token, origin);
+  const shareUrl = `${origin}/s/${full.token}`;
+  const createdAt = new Date(full.createdAt);
+  const kits = full.items?.length
+    ? buildAllKits(full.items, lang, { proofUrl, now: createdAt })
+    : (full.kits ?? []);
   const shareText = `${t("shareLine")} ${formatMoney(full.bestTakeHomeCents, lang)} ${t("for")} ${full.names.join(", ")} ${t("via")}`;
 
   async function copy(label: string, text: string) {
@@ -277,10 +303,7 @@ function UnlockedPanel({ full }: { full: ScanFull }) {
       <p className="font-display text-2xl tracking-tight">{t("extractTitle")}</p>
       <p className="mt-2 text-sm text-muted">{t("extractLead")}</p>
       <div className="mt-4 grid gap-2">
-        <Button
-          variant="secondary"
-          onClick={() => void copy("link", `${shareText} ${shareUrl}`)}
-        >
+        <Button variant="secondary" onClick={() => void copy("link", `${shareText} ${shareUrl}`)}>
           {copied === "link" ? <Check className="size-4" /> : <Copy className="size-4" />}
           {t("shareFigure")}
         </Button>
@@ -327,6 +350,15 @@ function UnlockedPanel({ full }: { full: ScanFull }) {
                 >
                   {t("copyFirst")}
                 </button>
+                {kit.proofLine ? (
+                  <button
+                    type="button"
+                    className="rounded-md bg-surface-2 px-3 py-2 text-left text-xs text-muted hover:text-fg"
+                    onClick={() => void copy("proof", kit.proofLine)}
+                  >
+                    {t("copyProof")}
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   className="rounded-md bg-surface-2 px-3 py-2 text-left text-xs text-muted hover:text-fg"

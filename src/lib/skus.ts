@@ -17,8 +17,8 @@ export type Sku = {
 export const SKUS: Record<SkuId, Sku> = {
   report: {
     id: "report",
-    name: "Annons + netto",
-    blurb: "Färdig Blocket-annons, exakt netto och svar till låga bud.",
+    name: "72-timmarsannons",
+    blurb: "Fast Blocket-pris, säljplan på 72 timmar, svar som dödar bud.",
     amountCents: 2900,
     currency: "sek",
     usdCents: 299,

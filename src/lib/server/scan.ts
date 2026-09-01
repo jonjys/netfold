@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { catalogById, matchIdentified, searchCatalog } from "@/lib/catalog";
-import { buildAllKits } from "@/lib/listings";
+import { buildAllKits, buildPublicProof, dayAnchor, DEMO_PROOF_TOKEN } from "@/lib/listings";
 import { blurRange, priceItem, sumBest, type Condition, type PricedItem } from "@/lib/pricing";
 import type { ScanFull, ScanMode, ScanTeaser } from "@/lib/types";
 import { newId } from "@/lib/utils";
@@ -217,6 +217,23 @@ export const getScan = createServerFn({ method: "GET" })
     return { ok: true as const, view: present(full, full.unlocked) };
   });
 
+export const getProof = createServerFn({ method: "GET" })
+  .validator(z.object({ token: z.string().min(3).max(80) }))
+  .handler(async ({ data }) => {
+    if (data.token === DEMO_PROOF_TOKEN) {
+      const catalog = catalogById("iphone-14-pro-max");
+      if (!catalog) return { ok: false as const };
+      const item = priceItem({ catalog, condition: "good" });
+      return { ok: true as const, proof: buildPublicProof(item, dayAnchor(), DEMO_PROOF_TOKEN) };
+    }
+    const full = await loadScan(data.token);
+    if (!full || !full.unlocked || !full.items[0]) return { ok: false as const };
+    return {
+      ok: true as const,
+      proof: buildPublicProof(full.items[0], new Date(full.createdAt), full.token),
+    };
+  });
+
 export const searchItems = createServerFn({ method: "GET" })
   .validator(z.object({ q: z.string().max(80) }))
   .handler(async ({ data }) => {
@@ -247,7 +264,7 @@ export const applyCredit = createServerFn({ method: "POST" })
     await sql`update wallets set credits = credits - 1 where token = ${data.wallet} and credits > 0`;
     full.unlocked = true;
     full.hasKit = true;
-    full.kits = buildAllKits(full.items);
+    full.kits = buildAllKits(full.items, "sv", { now: new Date(full.createdAt) });
     await saveScan(full);
     await sql`insert into events (id, name, scan_token, sku)
       values (${newId()}, ${"credit_unlock"}, ${full.token}, ${"pack"})`;

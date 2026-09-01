@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { COPY } from "./copy.ts";
 import { catalogById } from "./catalog.ts";
-import { buildExtractKit } from "./listings.ts";
+import {
+  buildExtractKit,
+  buildPublicProof,
+  dayAnchor,
+  DEMO_PROOF_TOKEN,
+  proofHref,
+  sellBy,
+} from "./listings.ts";
 import { formatMoney, sekToUsdCents } from "./money.ts";
 import { priceItem } from "./pricing.ts";
 import { formatSkuPrice, SKUS } from "./skus.ts";
@@ -37,20 +44,58 @@ describe("sku prices", () => {
 });
 
 describe("listing kit", () => {
-  it("writes a Blocket ad in Swedish and a Marketplace ad in English", () => {
-    const catalog = catalogById("iphone-16-128");
+  it("writes a 72-hour Blocket sell plan with buyer proof, not a quote", () => {
+    const catalog = catalogById("iphone-14-pro-max");
     assert.ok(catalog);
     const priced = priceItem({ catalog, condition: "good" });
-    const sv = buildExtractKit(priced, "sv");
-    const en = buildExtractKit(priced, "en");
+    const firm = formatMoney(priced.acceptCents, "sv");
+    const now = new Date("2026-09-01T15:00:00Z");
+    const proof = proofHref("demo");
+    const sv = buildExtractKit(priced, "sv", { proofUrl: proof, now });
+    const en = buildExtractKit(priced, "en", { now });
     assert.equal(sv.listings[0].channelId, "local");
-    assert.match(sv.listings[0].body, /Hämtas/);
-    assert.match(sv.listings[0].title, /kr/i);
+    assert.match(sv.listings[0].title, /ej bud/i);
+    assert.match(sv.listings[0].title, new RegExp(firm.replace(/\s/g, "\\s")));
+    assert.match(sv.listings[0].body, /Fast pris/);
+    assert.match(sv.listings[0].body, /Swappie/);
+    assert.match(sv.listings[0].body, /Köparbevis/);
+    assert.match(sv.listings[0].body, /\/b\/demo/);
+    assert.match(sv.lowballReply, /Swappie/);
+    assert.ok(sv.deadlineLabel.length > 3);
     assert.equal(en.listings[0].channelId, "facebook");
-    assert.match(en.listings[0].body, /Pickup/);
-    assert.match(en.listings[0].title, /\$/);
+    assert.match(en.listings[0].body, /Firm/);
+    assert.match(en.listings[0].body, /No offers/);
     assert.equal(sv.lowballReply.includes("$"), false);
-    assert.match(en.lowballReply, /\$/);
+    assert.equal(sellBy(now).toISOString(), "2026-09-04T15:00:00.000Z");
+  });
+
+  it("freezes the deadline to the scan clock, not the page load", () => {
+    const catalog = catalogById("iphone-14-pro-max");
+    assert.ok(catalog);
+    const priced = priceItem({ catalog, condition: "good" });
+    const a = buildExtractKit(priced, "sv", { now: new Date("2026-01-01T00:00:00Z") });
+    const b = buildExtractKit(priced, "sv", { now: new Date("2026-01-01T00:00:00Z") });
+    assert.equal(a.deadlineLabel, b.deadlineLabel);
+    const later = buildExtractKit(priced, "sv", { now: new Date("2026-06-01T00:00:00Z") });
+    assert.notEqual(a.deadlineLabel, later.deadlineLabel);
+  });
+});
+
+describe("buyer proof", () => {
+  it("publishes firm price and Swappie floor, not walk/ask", () => {
+    const catalog = catalogById("iphone-14-pro-max");
+    assert.ok(catalog);
+    const priced = priceItem({ catalog, condition: "good" });
+    const created = new Date("2026-09-01T12:00:00Z");
+    const proof = buildPublicProof(priced, created, DEMO_PROOF_TOKEN);
+    assert.equal(proof.token, "demo");
+    assert.equal(proof.firmCents, priced.acceptCents);
+    assert.ok(proof.swappieCents < proof.firmCents);
+    assert.equal(proof.deadlineISO, sellBy(created).toISOString());
+    assert.equal(proofHref("abc"), "https://www.netfold.site/b/abc");
+    assert.ok(dayAnchor(created).toISOString().endsWith("T06:00:00.000Z"));
+    assert.equal("askCents" in proof, false);
+    assert.equal("walkCents" in proof, false);
   });
 });
 

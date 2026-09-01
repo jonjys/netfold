@@ -102,7 +102,9 @@ export async function fulfillOrder(input: {
       full.unlocked = true;
       if (sku.includesKit) {
         full.hasKit = true;
-        full.kits = buildAllKits(full.items, input.lang ?? (input.currency === "usd" ? "en" : "sv"));
+        full.kits = buildAllKits(full.items, input.lang ?? (input.currency === "usd" ? "en" : "sv"), {
+          now: new Date(full.createdAt),
+        });
         if (sku.credits > 0 && input.walletToken) {
           await sql`update wallets set credits = credits - 1
             where token = ${input.walletToken} and credits > 0`;
