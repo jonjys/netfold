@@ -70,6 +70,8 @@ export function formatDeadline(at: Date, lang: Lang): string {
   }).format(at);
 }
 
+export const SELL_WINDOW_MS = 72 * 60 * 60 * 1000;
+
 export function remainingParts(at: Date, now = new Date()): { h: number; m: number; s: number } {
   const ms = Math.max(0, at.getTime() - now.getTime());
   return {
@@ -77,6 +79,11 @@ export function remainingParts(at: Date, now = new Date()): { h: number; m: numb
     m: Math.floor((ms % 3_600_000) / 60_000),
     s: Math.floor((ms % 60_000) / 1000),
   };
+}
+
+export function remainingRatio(at: Date, now = new Date(), windowMs = SELL_WINDOW_MS): number {
+  const left = Math.max(0, at.getTime() - now.getTime());
+  return Math.min(1, left / windowMs);
 }
 
 export function formatRemaining(at: Date, lang: Lang, now = new Date()): string {

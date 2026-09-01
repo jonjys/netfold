@@ -82,7 +82,7 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
     <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
       <div>
         <p className="text-xs uppercase tracking-[0.18em] text-subtle">
-          {sellMode ? t("homeKicker") : view.mode === "buy" ? t("modeBuy") : t("modeSell")}
+          {sellMode ? t("adKicker") : view.mode === "buy" ? t("modeBuy") : t("modeSell")}
         </p>
         <h1 className="mt-2 font-display text-4xl leading-none tracking-tight sm:text-5xl">
           {headline}

@@ -18,6 +18,26 @@ describe("copy keys", () => {
   it("en and sv expose the same keys", () => {
     assert.deepEqual(Object.keys(COPY.en).sort(), Object.keys(COPY.sv).sort());
   });
+
+  it("keeps Swedish on Blocket/Swappie and English on Marketplace/trade-in", () => {
+    assert.match(COPY.sv.homeKicker, /Blocket/);
+    assert.match(COPY.sv.sampleChannel, /Blocket/);
+    assert.match(COPY.sv.sampleThen, /Swappie/);
+    assert.match(COPY.sv.vsHeadline, /Swappie/);
+    assert.match(COPY.sv.sampleCta, /Skriv min/);
+    assert.equal(COPY.sv.homeKicker.includes("Marketplace"), false);
+    assert.equal(COPY.sv.sampleThen.includes("trade-in"), false);
+    assert.equal(COPY.sv.sampleCta.includes("$"), false);
+
+    assert.match(COPY.en.homeKicker, /Marketplace/);
+    assert.match(COPY.en.sampleChannel, /Marketplace/);
+    assert.match(COPY.en.sampleThen, /trade-in/);
+    assert.match(COPY.en.vsHeadline, /trade-in/);
+    assert.match(COPY.en.sampleCta, /Write mine/);
+    assert.equal(COPY.en.homeKicker.includes("Blocket"), false);
+    assert.equal(COPY.en.sampleThen.includes("Swappie"), false);
+    assert.equal(COPY.en.sampleCta.includes("kr"), false);
+  });
 });
 
 describe("formatMoney", () => {

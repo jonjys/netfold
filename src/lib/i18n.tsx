@@ -27,13 +27,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE);
-      if (stored === "sv" || stored === "en") {
-        setLangState(stored);
-        return;
-      }
-      if (typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("sv")) {
-        setLangState("sv");
-      }
+      if (stored === "sv" || stored === "en") setLangState(stored);
     } catch {
       /* ignore */
     }
@@ -52,7 +46,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const t = useCallback((key: CopyKey) => COPY[lang][key] ?? COPY.en[key], [lang]);
+  const t = useCallback((key: CopyKey) => COPY[lang][key] ?? COPY.sv[key], [lang]);
 
   const value = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
