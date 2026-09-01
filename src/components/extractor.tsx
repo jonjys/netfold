@@ -14,10 +14,10 @@ import { useI18n } from "@/lib/i18n";
 import type { CopyKey } from "@/lib/copy";
 
 const QUICK = [
+  { id: "iphone-13-pro-max", label: "iPhone 13 Pro Max" },
+  { id: "iphone-14-pro-max", label: "iPhone 14 Pro Max" },
+  { id: "iphone-16-128", label: "iPhone 16" },
   { id: "sony-xm5", label: "Sony XM5" },
-  { id: "iphone-13-128", label: "iPhone 13" },
-  { id: "ps5-slim", label: "PS5 Slim" },
-  { id: "dyson-v15", label: "Dyson V15" },
 ];
 
 export function Extractor({

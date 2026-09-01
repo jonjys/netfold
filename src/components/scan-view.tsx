@@ -15,6 +15,7 @@ import { useI18n } from "@/lib/i18n";
 import type { CopyKey, Lang } from "@/lib/copy";
 import { channelCopyKey } from "@/lib/channels";
 import { buildAllKits, lockedAdPreview } from "@/lib/listings";
+import { VsCard } from "@/components/vs-card";
 
 function isFull(view: ScanTeaser | ScanFull): view is ScanFull {
   return "items" in view && Array.isArray((view as ScanFull).items);
@@ -61,7 +62,10 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
 
   const headline = unlocked
     ? formatMoney(view.bestTakeHomeCents, lang)
-    : formatMoneyRange(view.rangeLowCents, view.rangeHighCents, lang);
+    : view.trappedVsInstantCents > 800
+      ? `${formatMoney(view.trappedVsInstantCents, lang)} ${t("vsHeadline")}`
+      : formatMoneyRange(view.rangeLowCents, view.rangeHighCents, lang);
+  const swappieCents = Math.max(0, view.bestTakeHomeCents - view.trappedVsInstantCents);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -75,10 +79,8 @@ export function ScanView({ view }: { view: ScanTeaser | ScanFull }) {
         <p className="mt-4 max-w-md text-sm text-muted">
           {view.itemCount === 1 ? view.names[0] : `${view.itemCount} ${t("items")}`} · {t("bestNet")}{" "}
           {bestChannel}
-          {view.trappedVsInstantCents > 800
-            ? ` · ${t("instantLeaves")} ${unlocked ? formatMoney(view.trappedVsInstantCents, lang) : t("aLot")} ${t("onTable")}`
-            : null}
         </p>
+        <VsCard blocketCents={view.bestTakeHomeCents} swappieCents={swappieCents} />
 
         {unlocked ? (
           <>

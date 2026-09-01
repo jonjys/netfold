@@ -79,7 +79,7 @@ function buildSv(item: PricedItem): ExtractKit {
     firstMessage: `Finns kvar. ${ask}, ${cond}. Hämtning den här veckan går bra. Jag håller den inte utan tid.`,
     lowballReply: `Tack. Jag har redan räknat mot sålda priser. Jag kan göra ${accept}. Under det behåller jag den.`,
     holdMessage: `Jag kan hålla den till imorgon kväll för ${accept}. Sen går den upp igen.`,
-    acceptLine: `Bäst netto: ${best.short} ${formatMoney(best.takeHomeCents, "sv")} på ca ${best.daysToSold} dagar. Direktköp lämnar ${formatMoney(item.trappedVsInstantCents, "sv")} på bordet.`,
+    acceptLine: `Bäst netto: ${best.short} ${formatMoney(best.takeHomeCents, "sv")} på ca ${best.daysToSold} dagar. Swappie lämnar ${formatMoney(item.trappedVsInstantCents, "sv")} på bordet.`,
   };
 }
 
@@ -130,7 +130,7 @@ function buildEn(item: PricedItem): ExtractKit {
     firstMessage: `Still available. ${ask}, ${cond}. Pickup this week is fine. I will not hold it without a time.`,
     lowballReply: `Thanks. I already priced this against sold comps. I can do ${accept}. Below that I keep it.`,
     holdMessage: `I can hold it until tomorrow evening for ${accept}. Then it goes back up.`,
-    acceptLine: `Best net: ${best.short} ${formatMoney(best.takeHomeCents, "en")} in about ${best.daysToSold} days. Cash-now leaves ${formatMoney(item.trappedVsInstantCents, "en")} on the table.`,
+    acceptLine: `Best net: ${best.short} ${formatMoney(best.takeHomeCents, "en")} in about ${best.daysToSold} days. Trade-in leaves ${formatMoney(item.trappedVsInstantCents, "en")} on the table.`,
   };
 }
 

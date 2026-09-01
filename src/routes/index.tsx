@@ -1,26 +1,36 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Extractor } from "@/components/extractor";
 import { Shell } from "@/components/shell";
+import { VsCard } from "@/components/vs-card";
 import { catalogById } from "@/lib/catalog";
-import { featuredCatalog, priceItem } from "@/lib/pricing";
+import { priceItem } from "@/lib/pricing";
 import { formatMoney } from "@/lib/money";
 import { buildExtractKit } from "@/lib/listings";
 import { useI18n } from "@/lib/i18n";
 import { formatSkuPrice } from "@/lib/skus";
 
+const HOME_PHONES = [
+  "iphone-14-pro-max",
+  "iphone-13-pro-max",
+  "iphone-15-pro-max",
+  "iphone-16-128",
+  "iphone-15-128",
+  "iphone-13-128",
+] as const;
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Färdig Blocket-annons + vad du får kvar | Netfold" },
+      { title: "Swappie eller Blocket? Vad du faktiskt får kvar | Netfold" },
       {
         name: "description",
         content:
-          "Skriv prylen. Få en färdig Blocket-annons och exakt netto i kronor — iPhone, MacBook, hörlurar. Inte bara en prisuppgift. Från 29 kr.",
+          "Swappie ger ~1 300 kr för en iPhone 14 Pro Max. På Blocket ~4 500 kr. Netfold skriver Blocket-annonsen. 29 kr.",
       },
       {
         name: "keywords",
         content:
-          "iphone värde blocket, sälja iphone blocket, blocket annons, vad är min iphone värd, begagnad iphone pris, macbook värde",
+          "swappie vs blocket, sälj iphone swappie, vad ger swappie, iphone värde blocket, sälja iphone blocket, iPhone 14 Pro Max blocket",
       },
     ],
   }),
@@ -28,22 +38,34 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const featured = featuredCatalog(6);
   const { t, lang } = useI18n();
+  const heroCatalog = catalogById("iphone-14-pro-max");
+  const hero = heroCatalog ? priceItem({ catalog: heroCatalog, condition: "good" }) : null;
+  const heroBlocket = hero?.quotes.find((q) => q.channelId === "local")?.takeHomeCents ?? 0;
+  const heroSwappie = hero?.quotes.find((q) => q.channelId === "instant")?.takeHomeCents ?? 0;
   const sampleCatalog = catalogById("iphone-16-128");
   const sample = sampleCatalog
     ? buildExtractKit(priceItem({ catalog: sampleCatalog, condition: "good" }), lang)
     : null;
   const sampleListing = sample?.listings[0];
+  const phones = HOME_PHONES.map((id) => catalogById(id)).filter(
+    (row): row is NonNullable<typeof row> => Boolean(row),
+  );
 
   return (
     <Shell>
-      <section className="pb-6 pt-4 sm:pt-10">
+      <section className="pb-4 pt-4 sm:pt-10">
         <p className="text-xs uppercase tracking-[0.2em] text-subtle">{t("homeKicker")}</p>
         <h1 className="mt-3 max-w-2xl font-display text-[2.6rem] leading-[0.95] tracking-tight sm:text-6xl">
           {t("homeTitle")}
         </h1>
         <p className="mt-4 max-w-lg text-base text-muted">{t("homeLead")}</p>
+        {hero ? <VsCard blocketCents={heroBlocket} swappieCents={heroSwappie} /> : null}
+        <p className="mt-3 text-xs text-subtle">
+          <Link to="/swappie-vs-blocket" className="hover:text-fg">
+            iPhone 13 / 14 / 15 Pro Max — Swappie mot Blocket
+          </Link>
+        </p>
       </section>
 
       <Extractor />
@@ -85,8 +107,13 @@ function Home() {
           </Link>
         </div>
         <ul className="mt-4 divide-y divide-border rounded-2xl bg-surface shadow-[var(--shadow-border)]">
-          {featured.map((item) => {
+          {phones.map((item) => {
             const priced = priceItem({ catalog: item, condition: "good" });
+            const blocket =
+              priced.quotes.find((q) => q.channelId === "local")?.takeHomeCents ??
+              priced.bestTakeHomeCents;
+            const swappie =
+              priced.quotes.find((q) => q.channelId === "instant")?.takeHomeCents ?? 0;
             return (
               <li key={item.id}>
                 <Link
@@ -94,9 +121,15 @@ function Home() {
                   params={{ slug: item.slug }}
                   className="flex items-center justify-between gap-3 px-4 py-3.5"
                 >
-                  <span className="text-sm">{item.name}</span>
-                  <span className="font-mono text-sm tabular-nums text-muted">
-                    {formatMoney(priced.bestTakeHomeCents, lang)}
+                  <span>
+                    <span className="block text-sm">{item.name}</span>
+                    <span className="text-xs text-subtle">
+                      {t("vsSwappie")} {formatMoney(swappie, lang)} · {t("vsBlocket")}{" "}
+                      {formatMoney(blocket, lang)}
+                    </span>
+                  </span>
+                  <span className="font-mono text-sm tabular-nums text-ok">
+                    +{formatMoney(priced.trappedVsInstantCents, lang)}
                   </span>
                 </Link>
               </li>

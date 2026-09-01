@@ -70,15 +70,15 @@ export const CHANNELS: Channel[] = [
   },
   {
     id: "instant",
-    name: "Instant buyer",
-    short: "Instant",
+    name: "Swappie",
+    short: "Swappie",
     feePct: 0.42,
     feeFixedCents: 0,
     sellerPaysShipCents: 0,
     priceHaircut: 0,
-    daysToSold: 3,
+    daysToSold: 1,
     effort: "low",
-    note: "Sellpy / inbyte. Pengar i veckan, ungefär halva värdet.",
+    note: "Swappie / inbyte. Pengar idag. Ungefär en tredjedel av Blocket.",
   },
 ];
 
@@ -101,7 +101,7 @@ export function channelCopyKey(id?: string | null, short?: string | null) {
   const s = (short ?? "").toLowerCase();
   if (s.includes("vinted")) return "chVinted";
   if (s.includes("ebay")) return "chEbay";
-  if (s.includes("instant") || s.includes("direkt")) return "chInstant";
+  if (s.includes("instant") || s.includes("direkt") || s.includes("swappie") || s.includes("trade")) return "chInstant";
   if (s.includes("market") || s.includes("facebook")) return "chFacebook";
   return "chLocal";
 }

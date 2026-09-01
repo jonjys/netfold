@@ -8,11 +8,11 @@ import { priceItem } from "@/lib/pricing";
 export const Route = createFileRoute("/iphone-varde")({
   head: () => ({
     meta: [
-      { title: "iPhone värde på Blocket — vad du får kvar | Netfold" },
+      { title: "iPhone värde på Blocket — mot Swappie | Netfold" },
       {
         name: "description",
         content:
-          "Vad är min iPhone värd på Blocket? Netfold räknar nettot i kronor efter avgifter för iPhone 16, 15, 14, 13 och 12 — innan du lägger ut annonsen.",
+          "Vad är min iPhone värd på Blocket jämfört med Swappie? iPhone 16, 15, 14 Pro Max, 13 — netto i kronor, inte utropspriset.",
       },
     ],
   }),
@@ -28,8 +28,13 @@ function IphonePage() {
         Vad är min iPhone värd på Blocket?
       </h1>
       <p className="mt-4 max-w-lg text-base text-muted">
-        Blocket visar utropspris. Du får något annat i fickan. Skriv modell eller ta foto — Netfold
-        räknar nettot i kronor.
+        Swappie ger pengar idag. Blocket ger mer om du orkar chatten. Skriv modell eller ta foto —
+        Netfold räknar båda i kronor och skriver annonsen.
+      </p>
+      <p className="mt-3 text-sm">
+        <Link to="/swappie-vs-blocket" className="text-muted hover:text-fg">
+          Swappie vs Blocket →
+        </Link>
       </p>
       <div className="mt-8">
         <Extractor />
@@ -37,6 +42,7 @@ function IphonePage() {
       <ul className="mt-10 divide-y divide-border rounded-2xl bg-surface shadow-[var(--shadow-border)]">
         {phones.map((item) => {
           const priced = priceItem({ catalog: item, condition: "good" });
+          const swappie = priced.quotes.find((q) => q.channelId === "instant")?.takeHomeCents ?? 0;
           return (
             <li key={item.id}>
               <Link
@@ -44,7 +50,10 @@ function IphonePage() {
                 params={{ slug: item.slug }}
                 className="flex items-center justify-between gap-3 px-4 py-3.5"
               >
-                <span className="text-sm">{item.name}</span>
+                <span>
+                  <span className="block text-sm">{item.name}</span>
+                  <span className="text-xs text-subtle">Swappie {formatEuro(swappie)}</span>
+                </span>
                 <span className="font-mono text-sm tabular-nums text-muted">
                   {formatEuro(priced.bestTakeHomeCents)}
                 </span>

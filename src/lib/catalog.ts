@@ -34,8 +34,12 @@ export type CatalogItem = {
 
 export const CATALOG: CatalogItem[] = [
   item("iphone-16-128", "iPhone 16 128GB", "Apple", "iPhone 16", "phone", ["iphone 16"], 823900, 0.48, 1.08),
+  item("iphone-15-pro-max", "iPhone 15 Pro Max 256GB", "Apple", "iPhone 15 Pro Max", "phone", ["iphone 15 pro max", "15 pro max"], 792000, 0.48, 1.1),
+  item("iphone-15-plus-256", "iPhone 15 Plus 256GB", "Apple", "iPhone 15 Plus", "phone", ["iphone 15 plus", "15 plus"], 580800, 0.5, 1.05),
   item("iphone-15-128", "iPhone 15 128GB", "Apple", "iPhone 15", "phone", ["iphone 15"], 570900, 0.5, 1.05),
+  item("iphone-14-pro-max", "iPhone 14 Pro Max 128GB", "Apple", "iPhone 14 Pro Max", "phone", ["iphone 14 pro max", "14 pro max"], 528000, 0.5, 1.06),
   item("iphone-14-128", "iPhone 14 128GB", "Apple", "iPhone 14", "phone", ["iphone 14"], 361900, 0.52, 1.02),
+  item("iphone-13-pro-max", "iPhone 13 Pro Max 128GB", "Apple", "iPhone 13 Pro Max", "phone", ["iphone 13 pro max", "13 pro max"], 382800, 0.52, 1.04),
   item("iphone-13-128", "iPhone 13 128GB", "Apple", "iPhone 13", "phone", ["iphone 13"], 251900, 0.54, 1.0),
   item("iphone-12-128", "iPhone 12 128GB", "Apple", "iPhone 12", "phone", ["iphone 12"], 174900, 0.5, 0.92),
   item("iphone-se-2022", "iPhone SE 2022", "Apple", "iPhone SE", "phone", ["iphone se"], 141900, 0.48, 0.88),

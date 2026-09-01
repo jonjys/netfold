@@ -53,3 +53,18 @@ describe("listing kit", () => {
     assert.match(en.lowballReply, /\$/);
   });
 });
+
+describe("swappie vs blocket", () => {
+  it("leaves a few thousand kronor on a 14 Pro Max", () => {
+    const catalog = catalogById("iphone-14-pro-max");
+    assert.ok(catalog);
+    const priced = priceItem({ catalog, condition: "good" });
+    const blocket = priced.quotes.find((q) => q.channelId === "local");
+    const swappie = priced.quotes.find((q) => q.channelId === "instant");
+    assert.ok(blocket);
+    assert.ok(swappie);
+    assert.ok(blocket.takeHomeCents > 400_000);
+    assert.ok(swappie.takeHomeCents < 180_000);
+    assert.ok(priced.trappedVsInstantCents > 250_000);
+  });
+});

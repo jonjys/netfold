@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Extractor } from "@/components/extractor";
 import { Shell } from "@/components/shell";
+import { VsCard } from "@/components/vs-card";
 import { formatMoney, formatMoneyRange } from "@/lib/money";
 import { getPublicItem } from "@/lib/server/public";
 import { useI18n } from "@/lib/i18n";
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/i/$slug")({
     }
     const name = loaderData.catalog.name;
     const title = `${name} värde på Blocket — vad du får kvar | Netfold`;
-    const description = `Vad är ${name} värd på Blocket? Netto i kronor efter avgifter — inte utropspriset. Jämför Blocket, Marketplace, Vinted och eBay.`;
+    const description = `Vad är ${name} värd på Blocket jämfört med Swappie? Netto i kronor efter avgifter — inte utropspriset.`;
     return {
       meta: [
         { title },
@@ -38,7 +39,10 @@ function ItemPage() {
       </Shell>
     );
   }
-  const { catalog, teaser, likeNewBest, fairBest } = data;
+  const { catalog, teaser, likeNewBest, fairBest, good } = data;
+  const blocketCents =
+    good.quotes.find((q) => q.channelId === "local")?.takeHomeCents ?? good.bestTakeHomeCents;
+  const swappieCents = good.quotes.find((q) => q.channelId === "instant")?.takeHomeCents ?? 0;
   return (
     <Shell>
       <p className="text-xs uppercase tracking-[0.2em] text-subtle">{catalog.category}</p>
@@ -46,6 +50,7 @@ function ItemPage() {
         {catalog.name} — {t("itemH1Suffix")}
       </h1>
       <p className="mt-4 text-sm text-muted">{t("itemLead")}</p>
+      <VsCard blocketCents={blocketCents} swappieCents={swappieCents} />
       <p className="mt-6 font-display text-5xl tracking-tight">
         {formatMoneyRange(teaser.rangeLowCents, teaser.rangeHighCents, lang)}
       </p>

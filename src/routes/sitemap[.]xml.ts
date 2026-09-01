@@ -13,6 +13,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { loc: `${origin}/`, priority: "1.0" },
           { loc: `${origin}/market`, priority: "0.9" },
           { loc: `${origin}/iphone-varde`, priority: "0.9" },
+          { loc: `${origin}/swappie-vs-blocket`, priority: "0.9" },
           { loc: `${origin}/check`, priority: "0.7" },
           ...CATALOG.map((item) => ({
             loc: `${origin}/i/${item.slug}`,
